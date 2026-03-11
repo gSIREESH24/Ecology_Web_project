@@ -14,7 +14,7 @@ function App() {
       ) : (
         <IntroPage onLoginComplete={() => setShowLogin(true)} />
       )}
-      <FarmerDashboard />
+      {/* <FarmerDashboard /> */}
     </>
   );
 }

@@ -63,16 +63,29 @@ export default function IntroPage({ onLoginComplete }) {
         }}
       >
         <motion.div 
-          style={{ opacity: textOpacity, position: "absolute", top: "40%", textAlign: "center", zIndex: 50, color: "white" }}
+          style={{ 
+            opacity: textOpacity, 
+            position: "absolute", 
+            top: "40%", 
+            left: "50%",
+            transform: "translateX(-50%)",
+            textAlign: "center", 
+            zIndex: 50, 
+            color: "white",
+            width: "100%",
+            padding: "0 1.5rem",
+            boxSizing: "border-box"
+          }}
         >
-          <h1 style={{ fontSize: "clamp(2rem, 5vw, 4rem)", fontWeight: "900", letterSpacing: "-1px", textShadow: "0px 4px 10px rgba(0,0,0,0.8)", margin:"0 1rem" }}>
-            The Hidden Cost of <span style={{ color: "#fb7185" }}>Stubble Burning</span>
+          <h1 style={{ fontSize: "clamp(2rem, 8vw, 4rem)", fontWeight: "900", letterSpacing: "-1px", textShadow: "0px 4px 10px rgba(0,0,0,0.8)", margin: 0, lineHeight: 1.2 }}>
+            The Hidden Cost of <br style={{ display: "block", marginBottom: "0.2rem" }} />
+            <span style={{ color: "#fb7185" }}>Stubble Burning</span>
           </h1>
-          <p style={{ fontSize: "clamp(1rem, 2vw, 1.5rem)", opacity: 0.8, marginTop: "1rem", margin:"1rem" }}>Scroll down to trace the journey of the smoke</p>
+          <p style={{ fontSize: "clamp(1rem, 4vw, 1.5rem)", opacity: 0.8, margin: "1rem auto 0 max", maxWidth: "800px" }}>Scroll down to trace the journey of the smoke</p>
           <motion.div 
             animate={{ y: [0, 10, 0] }} 
             transition={{ repeat: Infinity, duration: 2 }}
-            style={{ marginTop: "2rem", opacity: 0.7, fontSize: "clamp(1.5rem, 3vw, 2.5rem)" }}
+            style={{ marginTop: "2rem", opacity: 0.7, fontSize: "clamp(1.5rem, 5vw, 2.5rem)" }}
           >
             ↓
           </motion.div>
@@ -102,6 +115,7 @@ export default function IntroPage({ onLoginComplete }) {
               width: "100%", 
               height: "100%", 
               objectFit: "cover",
+              objectPosition: "center",
               filter: "brightness(0.7) contrast(1.2)"
             }}
           />
@@ -110,7 +124,9 @@ export default function IntroPage({ onLoginComplete }) {
         <motion.div 
           style={{ 
             position: "absolute",
-            width: "100vw",
+            top: 0,
+            left: 0,
+            width: "100%",
             height: "100vh",
             opacity: smokeVideoOpacity,
             scale: smokeVideoScale,
@@ -140,6 +156,7 @@ export default function IntroPage({ onLoginComplete }) {
               width: "120%",
               height: "120%", 
               objectFit: "cover",
+              objectPosition: "center",
               position: "relative",
               mixBlendMode: "screen",
               opacity: 0.9,
@@ -174,6 +191,7 @@ export default function IntroPage({ onLoginComplete }) {
               width: "100%", 
               height: "100%", 
               objectFit: "cover",
+              objectPosition: "center",
               filter: "brightness(1) contrast(1)"
             }}
           />
@@ -208,11 +226,13 @@ export default function IntroPage({ onLoginComplete }) {
             top: "50%", 
             left: "50%", 
             transform: "translate(-50%, -50%)", 
-            fontSize: "clamp(1.5rem, 5vw, 3rem)",
+            fontSize: "clamp(2rem, 8vw, 4rem)",
             fontWeight: "900",
             letterSpacing: "0.2em",
             textAlign: "center",
             width: "100%",
+            padding: "0 1rem",
+            boxSizing: "border-box",
             opacity: ozoneTextOpacity,
             scale: ozoneTextScale,
             filter: ozoneTextBlur,

@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
 
 export default function IntroPage({ onLoginComplete }) {
@@ -18,7 +18,7 @@ export default function IntroPage({ onLoginComplete }) {
 
    useEffect(() => {
     const unsubscribe = smoothProgress.on("change", (v) => {
-      if (v > 0.98) {
+      if (v > 0.) {
         onLoginComplete();
       }
     });
@@ -66,7 +66,7 @@ export default function IntroPage({ onLoginComplete }) {
           style={{ 
             opacity: textOpacity, 
             position: "absolute", 
-            top: "40%", 
+            top: "30%", 
             left: "50%",
             transform: "translateX(-50%)",
             textAlign: "center", 

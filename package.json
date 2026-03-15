@@ -24,6 +24,7 @@
     "lucide-react": "^0.577.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "react-router-dom": "^7.13.1",
     "react-tsparticles": "^2.12.2",
     "tsparticles": "^3.9.1",
     "tsparticles-engine": "^2.12.0"

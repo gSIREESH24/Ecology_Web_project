@@ -18,7 +18,7 @@ export default function IntroPage({ onLoginComplete }) {
 
    useEffect(() => {
     const unsubscribe = smoothProgress.on("change", (v) => {
-      if (v > 0.) {
+      if (v > 0.8) {
         onLoginComplete();
       }
     });

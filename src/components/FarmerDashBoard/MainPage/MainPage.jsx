@@ -2,6 +2,7 @@ import { Box, Typography, Grid } from "@mui/material";
 import CashCard from "./CashCard";
 import ReportCard from "./ReportCard";
 import FieldCard from "./FieldCard";
+import FarmLandMap from "./FarmLandMap";
 
 export default function MainPage() {
   return (
@@ -18,6 +19,15 @@ export default function MainPage() {
         </Grid>
 
       </Grid>
+
+      <Typography
+        variant="h5"
+        sx={{ mt: 5, mb: 3, fontWeight: "bold",color:"#2e7d32" }}
+      >
+        Your Farm Location
+      </Typography>
+
+      <FarmLandMap />
 
       <Typography
         variant="h5"

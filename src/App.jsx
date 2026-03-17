@@ -6,6 +6,8 @@ import FarmerDashboard from "./components/FarmerDashBoard/Dashboard";
 import AnalysisPage from "./components/FarmerDashBoard/CropAnalysis/AnalysisPage";
 import Profile from "./components/FarmerDashBoard/Profile/ProfilePage";
 import ProfileProvider, { ProfileContext } from "./context/ProfileContext";
+import "leaflet/dist/leaflet.css";
+import "leaflet-draw/dist/leaflet.draw.css";
 
 function AppContent() {
   const [showLogin, setShowLogin] = useState(false);

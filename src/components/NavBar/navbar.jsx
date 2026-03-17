@@ -1,9 +1,13 @@
+import { useContext } from "react";
 import { AppBar, Toolbar, Typography, Box, Avatar, Button, IconButton } from "@mui/material";
 import LanguageIcon from "@mui/icons-material/Language";
 import GrassIcon from "@mui/icons-material/Grass";
 import PaidIcon from "@mui/icons-material/Paid";
+import { ProfileContext } from "../../context/ProfileContext";
 
 export default function Navbar() {
+  const { openProfile } = useContext(ProfileContext);
+
   return (
     <AppBar
       position="static"
@@ -63,7 +67,7 @@ export default function Navbar() {
 
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
 
-            <IconButton>
+            <IconButton onClick={openProfile}>
               <Avatar
                 sx={{
                   width: { xs: 28, sm: 34 },

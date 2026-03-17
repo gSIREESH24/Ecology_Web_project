@@ -1,16 +1,19 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import IntroPage from "./components/IntroPage/IntroPage";
 import LoginPage from "./components/LoginPage/login";
 import FarmerDashboard from "./components/FarmerDashBoard/Dashboard";
 import AnalysisPage from "./components/FarmerDashBoard/CropAnalysis/AnalysisPage";
+import Profile from "./components/FarmerDashBoard/Profile/ProfilePage";
+import ProfileProvider, { ProfileContext } from "./context/ProfileContext";
 
-function App() {
+function AppContent() {
   const [showLogin, setShowLogin] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { showProfile, closeProfile } = useContext(ProfileContext);
 
   return (
-    <BrowserRouter>
+    <>
       <Routes>
         <Route path="/" element={<FarmerDashboard />} />
         <Route path="/analysis" element={<AnalysisPage />} />
@@ -23,7 +26,19 @@ function App() {
           <IntroPage onLoginComplete={() => setShowLogin(true)} />
         )}*/}
       </Routes>
-    </BrowserRouter>
+      
+      <Profile open={showProfile} onClose={closeProfile} />
+    </>
+  );
+}
+
+function App() {
+  return (
+    <ProfileProvider>
+      <BrowserRouter>
+        <AppContent />
+      </BrowserRouter>
+    </ProfileProvider>
   );
 }
 

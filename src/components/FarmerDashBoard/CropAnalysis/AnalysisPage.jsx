@@ -16,7 +16,7 @@ import CameraAltIcon from "@mui/icons-material/CameraAlt";
 import ScienceIcon from "@mui/icons-material/Science";
 import AddIcon from "@mui/icons-material/Add";
 import Navbar from "../../NavBar/navbar";
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 export default function AnalysePage() {
 
@@ -32,6 +32,8 @@ export default function AnalysePage() {
 
   const [openDialog, setOpenDialog] = useState(false);
   const [newCropType, setNewCropType] = useState("");
+  const fileInputRef = useRef(null);
+  const [image, setImage] = useState(null);
 
   const handleCropSelect = (crop) => {
     setSelectedCrop(crop);
@@ -51,6 +53,18 @@ export default function AnalysePage() {
       setCropTypes([...cropTypes, newCropType]);
       setSelectedCrop(newCropType);
       handleCloseDialog();
+    }
+  };
+  const handleUploadClick = () => {
+    fileInputRef.current.click();
+  };
+
+  const handleImageChange = (event) => {
+    const file = event.target.files[0];
+
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      setImage(imageUrl);
     }
   };
 
@@ -82,29 +96,54 @@ export default function AnalysePage() {
                   📷 Upload Stubble Photo
                 </Typography>
 
+                <input
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  ref={fileInputRef}
+                  style={{ display: "none" }}
+                  onChange={handleImageChange}
+                />
+
                 <Box
-                  sx={{
-                    border: "2px dashed #d0d0d0",
-                    borderRadius: 3,
-                    p: 5,
-                    textAlign: "center",
-                    mt: 2,
-                    cursor: "pointer",
-                    "&:hover": { background: "#f2f7f3" }
-                  }}
-                >
+                onClick={handleUploadClick}
+                sx={{
+                  border: "2px dashed #d0d0d0",
+                  borderRadius: 3,
+                  p: 5,
+                  textAlign: "center",
+                  mt: 2,
+                  cursor: "pointer",
+                  "&:hover": { background: "#f2f7f3" }
+                }}
+              >
 
-                  <CameraAltIcon sx={{ fontSize: 40, color: "#2e7d32" }} />
+                {image ? (
+                  <img
+                    src={image}
+                    alt="uploaded"
+                    style={{
+                      width: "100%",
+                      maxHeight: "250px",
+                      objectFit: "cover",
+                      borderRadius: "10px"
+                    }}
+                  />
+                ) : (
+                  <>
+                    <CameraAltIcon sx={{ fontSize: 40, color: "#2e7d32" }} />
 
-                  <Typography mt={1} fontWeight="bold">
-                    Tap to upload photo
-                  </Typography>
+                    <Typography mt={1} fontWeight="bold">
+                      Tap to upload photo
+                    </Typography>
 
-                  <Typography variant="body2" color="gray">
-                    or drag & drop your field photo here
-                  </Typography>
+                    <Typography variant="body2" color="gray">
+                      or drag & drop your field photo here
+                    </Typography>
+                  </>
+                )}
 
-                </Box>
+              </Box>
 
                 <Typography mt={3} mb={1} fontWeight="bold">
                   Crop Type

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Container,
   Box,
@@ -10,53 +10,65 @@ import {
   Paper,
   Link,
 } from "@mui/material";
-
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
 import "./login.css";
-
 import Lottie from "lottie-react";
 import hii from "../../assets/animations/hii.json";
 import logo from "../../assets/logo.png";
-import { useAuthSide } from "../../context/AuthContext";
+import { useAuthSide, useAuth } from "../../context/AuthContext";
+import RoleSelector from "./RoleSelector";
+import ProfileCompletionForm from "./ProfileCompletionForm";
 
+const validEmail = (value) => /\S+@\S+\.\S+/.test(value.trim());
+const validPassword = (value) => /^(?=.*\d)(?=.*[A-Za-z]).{6,}$/.test(value);
+const validPhone = (value) => /^[6-9]\d{9}$/.test(value.trim());
+const validPincode = (value) => /^\d{6}$/.test(value.trim());
 
-export default function AuthPageMUI({ onLoginSuccess }) {
+const emptyProfileState = {
+  location: "",
+  pincode: "",
+  landSize: "",
+  operatingArea: "",
+  storageCapacity: "",
+  vehicleType: "",
+  experience: "",
+  companyName: "",
+  industryType: "",
+};
+
+export default function AuthPageMUI() {
   const { side, setSide } = useAuthSide();
+  const { register, login, completeProfile, session } = useAuth();
 
   const [showPass, setShowPass] = useState(false);
   const [showPassSign, setShowPassSign] = useState(false);
+  const [authStep, setAuthStep] = useState("form");
 
-  const [signin, setSignin] = useState({ email: "", password: "" });
+  const [signin, setSignin] = useState({ identifier: "", password: "", role: "" });
   const [signup, setSignup] = useState({
     name: "",
-    phone: "",
-    email: "",
+    identifier: "",
     password: "",
-    age: "",
+    role: "",
   });
+  const [profileData, setProfileData] = useState(emptyProfileState);
 
   const [errors, setErrors] = useState({});
   const [forgotEmail, setForgotEmail] = useState("");
   const [forgotError, setForgotError] = useState("");
   const [forgotMsg, setForgotMsg] = useState("");
-
   const [successMsg, setSuccessMsg] = useState("");
   const [signupSuccess, setSignupSuccess] = useState("");
 
-  const validEmail = (e) => /\S+@\S+\.\S+/.test(e);
-  const validPassword = (p) => /^(?=.*\d)(?=.*[A-Za-z]).{6,}$/.test(p);
-  const phoneRegex = (q) => /^[6-9]\d{9}$/.test(q);
-
-  /* AUTO-HIDE ERRORS */
   useEffect(() => {
     if (Object.keys(errors).length > 0) {
-      const timer = setTimeout(() => setErrors({}), 2000);
+      const timer = setTimeout(() => setErrors({}), 2500);
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [errors]);
 
-  /* AUTO-HIDE FORGOT MESSAGES */
   useEffect(() => {
     if (forgotMsg || forgotError) {
       const timer = setTimeout(() => {
@@ -65,103 +77,168 @@ export default function AuthPageMUI({ onLoginSuccess }) {
       }, 4000);
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [forgotMsg, forgotError]);
 
-  /* AUTO-HIDE LOGIN SUCCESS POPUP */
   useEffect(() => {
     if (successMsg) {
       const timer = setTimeout(() => setSuccessMsg(""), 2500);
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [successMsg]);
 
-  /* AUTO-HIDE SIGNUP SUCCESS POPUP */
   useEffect(() => {
     if (signupSuccess) {
       const timer = setTimeout(() => setSignupSuccess(""), 3000);
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [signupSuccess]);
 
-  /* -----------------------------------
-        SIGN IN
-  ------------------------------------*/
-  const handleSignin = (e) => {
-    e.preventDefault();
+  useEffect(() => {
+    if (side === "signup") {
+      setErrors({});
+      setForgotError("");
+      setForgotMsg("");
+      setAuthStep("form");
+    }
+  }, [side]);
+
+  const activeRole = useMemo(
+    () => (authStep === "profile" ? session?.role || signup.role : side === "signin" ? signin.role : signup.role),
+    [authStep, session?.role, side, signin.role, signup.role]
+  );
+
+  const handleSignin = (event) => {
+    event.preventDefault();
     setErrors({});
-    const newErrors = {};
+    const nextErrors = {};
 
-    if (!validEmail(signin.email)) newErrors.signinEmail = "Invalid email";
-    if (!validPassword(signin.password))
-      newErrors.signinPassword = "Password must be at least 6 characters and include a number";
+    if (!signin.identifier.trim()) nextErrors.signinIdentifier = "Enter name, email or phone";
+    if (!signin.role) nextErrors.signinRole = "Select role";
+    if (!validPassword(signin.password)) {
+      nextErrors.signinPassword = "Password must be at least 6 characters and include a number";
+    }
 
-    if (Object.keys(newErrors).length > 0) return setErrors(newErrors);
+    if (Object.keys(nextErrors).length > 0) {
+      setErrors(nextErrors);
+      return;
+    }
 
-    // Fake login success
-    sessionStorage.setItem("userName", signin.email);
+    const result = login(signin);
 
-    setSuccessMsg(`Welcome back!`);
+    if (!result.ok) {
+      setErrors({ signinPassword: result.message });
+      return;
+    }
 
-    setTimeout(() => {
-      onLoginSuccess?.();
-    }, 800);
+    if (!result.user.profileComplete) {
+      setSignupSuccess("Sign in successful. Please complete your role details.");
+      setAuthStep("profile");
+      setProfileData({ ...emptyProfileState, ...(result.user.profile || {}) });
+      return;
+    }
+
+    setSuccessMsg("Sign in successful!");
   };
 
-  /* -----------------------------------
-        SIGN UP
-  ------------------------------------*/
-  const handleSignup = (e) => {
-    e.preventDefault();
+  const handleSignup = (event) => {
+    event.preventDefault();
     setErrors({});
-    const newErrors = {};
+    const nextErrors = {};
 
-    if (!signup.name.trim()) newErrors.name = "User name required";
-    if (!validEmail(signup.email)) newErrors.email = "Invalid email";
-    if (signup.age < 0 || signup.age > 150) newErrors.age = "Age must be 0-150";
-    if (!validPassword(signup.password))
-      newErrors.password = "Password must be at least 6 characters and include a number";
-    if (!phoneRegex(signup.phone))
-      newErrors.phone = "Enter valid phone number";
+    if (!signup.name.trim()) nextErrors.name = "User name required";
+    if (!signup.identifier.trim()) {
+      nextErrors.identifier = "Phone or email required";
+    } else if (!validEmail(signup.identifier) && !validPhone(signup.identifier)) {
+      nextErrors.identifier = "Enter valid phone number or email";
+    }
+    if (!signup.role) nextErrors.role = "Select role";
+    if (!validPassword(signup.password)) {
+      nextErrors.password = "Password must be at least 6 characters and include a number";
+    }
 
-    if (Object.keys(newErrors).length > 0) return setErrors(newErrors);
+    if (Object.keys(nextErrors).length > 0) {
+      setErrors(nextErrors);
+      return;
+    }
 
-    // Save user locally
-    localStorage.setItem("user", JSON.stringify(signup));
+    const result = register(signup);
 
-    setSignupSuccess("Account created successfully! Please sign in.");
+    if (!result.ok) {
+      setErrors({ identifier: result.message });
+      return;
+    }
 
-    setSide("signin");
-    setSignin((s) => ({ ...s, email: signup.email }));
+    setSignupSuccess("Account created. Just add role details to continue.");
+    setProfileData({ ...emptyProfileState });
+    setAuthStep("profile");
   };
-  /* -----------------------------------
-      FORGOT PASSWORD
-  ------------------------------------*/
 
-  const handleForgot = (e) => {
-    e.preventDefault();
+  const handleProfileSubmit = (event) => {
+    event.preventDefault();
+    const role = session?.role || signup.role;
+    const nextErrors = {};
+
+    if (role === "farmer") {
+      if (!profileData.location.trim()) nextErrors.location = "Location is required";
+      if (!validPincode(profileData.pincode || "")) nextErrors.pincode = "Enter a valid 6-digit pincode";
+      if (!`${profileData.landSize}`.trim()) nextErrors.landSize = "Land size is required";
+    }
+
+    if (role === "aggregator") {
+      if (!profileData.operatingArea.trim()) nextErrors.operatingArea = "Operating area is required";
+      if (!validPincode(profileData.pincode || "")) nextErrors.pincode = "Enter a valid 6-digit pincode";
+      if (!`${profileData.storageCapacity}`.trim()) nextErrors.storageCapacity = "Storage capacity is required";
+      if (!profileData.vehicleType.trim()) nextErrors.vehicleType = "Vehicle type is required";
+      if (!profileData.experience.trim()) nextErrors.experience = "Experience is required";
+    }
+
+    if (role === "industry") {
+      if (!profileData.companyName.trim()) nextErrors.companyName = "Company name is required";
+      if (!profileData.industryType.trim()) nextErrors.industryType = "Industry type is required";
+      if (!profileData.location.trim()) nextErrors.location = "Location is required";
+      if (!validPincode(profileData.pincode || "")) nextErrors.pincode = "Enter a valid 6-digit pincode";
+    }
+
+    if (Object.keys(nextErrors).length > 0) {
+      setErrors(nextErrors);
+      return;
+    }
+
+    const result = completeProfile(profileData);
+
+    if (!result.ok) {
+      setErrors({ profile: result.message });
+      return;
+    }
+
+    setSignupSuccess("Profile completed successfully!");
+  };
+
+  const handleForgot = (event) => {
+    event.preventDefault();
 
     if (!forgotEmail.trim()) {
-      setForgotError("Enter your email");
+      setForgotError("Enter your phone or email");
       return;
     }
 
-    if (!validEmail(forgotEmail)) {
-      setForgotError("Invalid email address");
+    if (!validEmail(forgotEmail) && !validPhone(forgotEmail)) {
+      setForgotError("Invalid phone or email");
       return;
     }
 
-    setForgotMsg("Password reset link sent to your email");
+    setForgotMsg("Password reset link sent");
     setForgotEmail("");
   };
-  /* -----------------------------------
-        UI + RENDER
-  ------------------------------------*/
+
   const isSignin = side === "signin";
+  const showProfileStep = authStep === "profile";
 
   return (
     <Container maxWidth={false} disableGutters className="auth-container">
-
-      {/* LOGIN SUCCESS POPUP */}
       <AnimatePresence>
         {successMsg && (
           <motion.div
@@ -188,7 +265,6 @@ export default function AuthPageMUI({ onLoginSuccess }) {
         )}
       </AnimatePresence>
 
-      {/* SIGNUP SUCCESS POPUP */}
       <AnimatePresence>
         {signupSuccess && (
           <motion.div
@@ -215,15 +291,12 @@ export default function AuthPageMUI({ onLoginSuccess }) {
         )}
       </AnimatePresence>
 
-      {/* MAIN CARD */}
       <motion.div
         className={`auth-card ${side === "signup" ? "flipped" : ""}`}
         initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.5 }}
       >
-
-        {/* FORM SIDE */}
         <Paper elevation={6} className="auth-form-side">
           <Box className="auth-header">
             <motion.div
@@ -238,15 +311,38 @@ export default function AuthPageMUI({ onLoginSuccess }) {
               EcoStubble
             </Typography>
             <Typography className="auth-description">
-              {isSignin
-                ? "Sign in to manage your fields, reports, and eco-impact in one place."
-                : "Join EcoStubble and start tracking cleaner farming actions with a simple setup."}
+              {showProfileStep
+                ? "Almost done. Add the key details for your role now, and you can update the rest later from your profile page."
+                : isSignin
+                  ? "Sign in to manage your fields, reports, and eco-impact in one place."
+                  : "Join EcoStubble with a short signup, then finish only the details your role needs."}
             </Typography>
           </Box>
 
           <AnimatePresence mode="wait">
-            {isSignin ? (
-              /* ------------ SIGN IN FORM ------------ */
+            {showProfileStep ? (
+              <motion.div
+                key="profile"
+                initial={{ opacity: 0, x: -40 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 40 }}
+                transition={{ duration: 0.4 }}
+              >
+                {errors.profile ? (
+                  <Typography className="profile-error">{errors.profile}</Typography>
+                ) : null}
+                <ProfileCompletionForm
+                  role={activeRole}
+                  values={profileData}
+                  errors={errors}
+                  onChange={(name, value) =>
+                    setProfileData((current) => ({ ...current, [name]: value }))
+                  }
+                  onSubmit={handleProfileSubmit}
+                  onBack={() => setAuthStep("form")}
+                />
+              </motion.div>
+            ) : isSignin ? (
               <motion.form
                 key="signin"
                 onSubmit={handleSignin}
@@ -258,13 +354,13 @@ export default function AuthPageMUI({ onLoginSuccess }) {
               >
                 <TextField
                   fullWidth
-                  label="Email"
+                  label="Name / Email / Phone"
                   size="small"
                   margin="normal"
-                  value={signin.email}
-                  error={!!errors.signinEmail}
-                  helperText={errors.signinEmail}
-                  onChange={(e) => setSignin({ ...signin, email: e.target.value })}
+                  value={signin.identifier}
+                  error={!!errors.signinIdentifier}
+                  helperText={errors.signinIdentifier}
+                  onChange={(event) => setSignin({ ...signin, identifier: event.target.value })}
                 />
 
                 <TextField
@@ -276,7 +372,7 @@ export default function AuthPageMUI({ onLoginSuccess }) {
                   value={signin.password}
                   error={!!errors.signinPassword}
                   helperText={errors.signinPassword || "At least 6 characters & 1 number"}
-                  onChange={(e) => setSignin({ ...signin, password: e.target.value })}
+                  onChange={(event) => setSignin({ ...signin, password: event.target.value })}
                   InputProps={{
                     endAdornment: (
                       <InputAdornment position="end">
@@ -287,6 +383,18 @@ export default function AuthPageMUI({ onLoginSuccess }) {
                     ),
                   }}
                 />
+
+                <Typography className="role-label">Select Role</Typography>
+                <RoleSelector
+                  value={signin.role}
+                  onChange={(role) => {
+                    setSignin((current) => ({ ...current, role }));
+                    setErrors((current) => ({ ...current, signinRole: "" }));
+                  }}
+                />
+                {errors.signinRole ? (
+                  <Typography className="role-error">{errors.signinRole}</Typography>
+                ) : null}
 
                 <Box className="form-actions">
                   <Button type="submit" variant="contained" className="submit-btn">
@@ -304,7 +412,6 @@ export default function AuthPageMUI({ onLoginSuccess }) {
                   </Link>
                 </Box>
 
-                {/* FORGOT SECTION */}
                 <Box id="forgot-block" className="forgot-section">
                   <Typography variant="subtitle2" sx={{ mt: 2, mb: 2 }}>
                     Forgot password?
@@ -313,9 +420,9 @@ export default function AuthPageMUI({ onLoginSuccess }) {
                   <Box className="forgot-form">
                     <TextField
                       size="small"
-                      placeholder="Enter your email"
+                      placeholder="Enter phone or email"
                       value={forgotEmail}
-                      onChange={(e) => setForgotEmail(e.target.value)}
+                      onChange={(event) => setForgotEmail(event.target.value)}
                       error={!!forgotError}
                       helperText={forgotError}
                       className="forgot-input"
@@ -330,11 +437,9 @@ export default function AuthPageMUI({ onLoginSuccess }) {
                       {forgotMsg}
                     </Typography>
                   )}
-
                 </Box>
               </motion.form>
             ) : (
-              /* ------------ SIGN UP FORM ------------ */
               <motion.form
                 key="signup"
                 onSubmit={handleSignup}
@@ -345,7 +450,7 @@ export default function AuthPageMUI({ onLoginSuccess }) {
                 transition={{ duration: 0.4 }}
               >
                 <Typography className="signup-note" variant="body2">
-                  You can upload further details later from Profile Page!
+                  Create your account first. Role details come right after this step, and you can finish the rest later from your profile page.
                 </Typography>
 
                 <TextField
@@ -356,29 +461,18 @@ export default function AuthPageMUI({ onLoginSuccess }) {
                   value={signup.name}
                   error={!!errors.name}
                   helperText={errors.name}
-                  onChange={(e) => setSignup({ ...signup, name: e.target.value })}
+                  onChange={(event) => setSignup({ ...signup, name: event.target.value })}
                 />
 
                 <TextField
                   fullWidth
-                  label="Phone Number"
+                  label="Phone Number or Email"
                   size="small"
                   margin="normal"
-                  value={signup.phone}
-                  error={!!errors.phone}
-                  helperText={errors.phone}
-                  onChange={(e) => setSignup({ ...signup, phone: e.target.value })}
-                />
-
-                <TextField
-                  fullWidth
-                  label="Email"
-                  size="small"
-                  margin="normal"
-                  value={signup.email}
-                  error={!!errors.email}
-                  helperText={errors.email}
-                  onChange={(e) => setSignup({ ...signup, email: e.target.value })}
+                  value={signup.identifier}
+                  error={!!errors.identifier}
+                  helperText={errors.identifier}
+                  onChange={(event) => setSignup({ ...signup, identifier: event.target.value })}
                 />
 
                 <TextField
@@ -389,7 +483,8 @@ export default function AuthPageMUI({ onLoginSuccess }) {
                   margin="normal"
                   value={signup.password}
                   error={!!errors.password}
-                  onChange={(e) => setSignup({ ...signup, password: e.target.value })}
+                  helperText={errors.password}
+                  onChange={(event) => setSignup({ ...signup, password: event.target.value })}
                   InputProps={{
                     endAdornment: (
                       <InputAdornment position="end">
@@ -401,27 +496,24 @@ export default function AuthPageMUI({ onLoginSuccess }) {
                   }}
                 />
 
-                <TextField
-                  label="Age"
-                  type="number"
-                  size="small"
-                  inputProps={{ min: 0, max: 150 }}
-                  value={signup.age}
-                  error={!!errors.age}
-                  helperText={errors.age}
-                  onChange={(e) => setSignup({ ...signup, age: e.target.value })}
-                  className="metric-field"
+                <Typography className="role-label">Select a role</Typography>
+                <RoleSelector
+                  value={signup.role}
+                  onChange={(role) => {
+                    setSignup((current) => ({ ...current, role }));
+                    setErrors((current) => ({ ...current, role: "" }));
+                  }}
                 />
+                {errors.role ? <Typography className="role-error">{errors.role}</Typography> : null}
 
-                <Button type="submit" variant="contained" className="submit-btn">
-                  Sign Up
+                <Button type="submit" variant="contained" className="submit-btn signup-submit-btn">
+                  Create Account
                 </Button>
               </motion.form>
             )}
           </AnimatePresence>
         </Paper>
 
-        {/* PANEL SIDE */}
         <motion.div
           className={`auth-panel-side ${side === "signup" ? "signup-mode" : ""}`}
           animate={{
@@ -435,46 +527,61 @@ export default function AuthPageMUI({ onLoginSuccess }) {
           <Box className="panel-orb panel-orb-one" />
           <Box className="panel-orb panel-orb-two" />
           <Box className="panel-content">
-            <Box
-              className="panel-animation"
-            >
-              <Lottie animationData={hii} loop={true} height="100%" />
+            <Box className="panel-animation">
+              <Lottie animationData={hii} loop height="100%" />
             </Box>
 
-            {isSignin ? (
+            {showProfileStep ? (
               <>
-                <Typography className="panel-badge">
-                  Start your journey
-                </Typography>
+                <Typography className="panel-badge">One more quick step</Typography>
                 <Typography variant="h4" className="panel-title">
-                  New here?
+                  Your account is ready
                 </Typography>
                 <Typography className="panel-text">
-                  Create an account and start helping reduce stubble burning.
+                  Add a few role-specific details so we can personalize your experience from the start.
+                </Typography>
+                <Button variant="contained" className="panel-btn" onClick={() => setAuthStep("form")}>
+                  Back to account form
+                </Button>
+              </>
+            ) : isSignin ? (
+              <>
+                <Typography className="panel-badge">Start your journey</Typography>
+                <Typography variant="h4" className="panel-title">
+                  Need an account?
+                </Typography>
+                <Typography className="panel-text">
+                  Create a role-based account in a minute and step into a cleaner, smarter workflow from day one.
                 </Typography>
                 <Button
                   variant="contained"
                   className="panel-btn"
-                  onClick={() => setSide("signup")}
+                  onClick={() => {
+                    setSide("signup");
+                    setAuthStep("form");
+                    setSignup((current) => ({ ...current, role: "" }));
+                  }}
                 >
                   Create Account
                 </Button>
               </>
             ) : (
               <>
-                <Typography className="panel-badge">
-                  Great to see you
-                </Typography>
+                <Typography className="panel-badge">Great to see you</Typography>
                 <Typography variant="h4" className="panel-title">
                   Already have an account?
                 </Typography>
                 <Typography className="panel-text">
-                  Sign in to continue and access your dashboard.
+                  Jump back in and pick up your work with a dashboard shaped around your role.
                 </Typography>
                 <Button
                   variant="contained"
                   className="panel-btn"
-                  onClick={() => setSide("signin")}
+                  onClick={() => {
+                    setSide("signin");
+                    setAuthStep("form");
+                    setSignin((current) => ({ ...current, role: "" }));
+                  }}
                 >
                   Sign In
                 </Button>

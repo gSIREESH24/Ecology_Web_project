@@ -1,11 +1,11 @@
-import { useRef, useEffect } from 'react';
-import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
+import { useRef, useEffect } from "react";
+import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 
 export default function IntroPage({ onLoginComplete }) {
   const containerRef = useRef(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,
-    offset: ["start start", "end end"]
+    offset: ["start start", "end end"],
   });
 
   const smoothProgress = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 });
@@ -16,15 +16,15 @@ export default function IntroPage({ onLoginComplete }) {
     ["#121614", "#1a0b00", "#0b132b", "#02040a", "#0a0a0a"]
   );
 
-   useEffect(() => {
+  useEffect(() => {
     const unsubscribe = smoothProgress.on("change", (v) => {
       if (v > 0.8) {
-        onLoginComplete();
+        onLoginComplete?.();
       }
     });
 
     return () => unsubscribe();
-  }, [smoothProgress, onLoginComplete]);
+  }, [onLoginComplete, smoothProgress]);
   
   const stubbleVideoOpacity = useTransform(smoothProgress, [0, 0.15, 0.3], [1, 1, 0]);
   const stubbleVideoScale = useTransform(smoothProgress, [0, 0.3], [1, 1.1]);

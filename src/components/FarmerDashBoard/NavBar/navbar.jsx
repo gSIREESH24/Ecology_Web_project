@@ -3,10 +3,12 @@ import { AppBar, Toolbar, Typography, Box, Avatar, Button, IconButton } from "@m
 import LanguageIcon from "@mui/icons-material/Language";
 import GrassIcon from "@mui/icons-material/Grass";
 import PaidIcon from "@mui/icons-material/Paid";
-import { ProfileContext } from "../../context/ProfileContext";
+import { ProfileContext } from "../../../context/ProfileContext";
+import { useNavigate } from "react-router-dom";
 
 export default function Navbar() {
   const { openProfile } = useContext(ProfileContext);
+  const navigate = useNavigate();
 
   return (
     <AppBar
@@ -32,6 +34,7 @@ export default function Navbar() {
           <Typography
             variant="h6"
             fontWeight="bold"
+            onClick={() => navigate("/")}
             sx={{
               color: "#33822a",
               cursor: "pointer",
@@ -77,6 +80,7 @@ export default function Navbar() {
             </IconButton>
 
             <Button
+              onClick={() => navigate("/credits")}
               sx={{
                 border: "2px solid #2e7d32",
                 borderRadius: "20px",

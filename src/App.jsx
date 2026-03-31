@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useContext } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import IntroPage from "./components/IntroPage/IntroPage";
 import LoginPage from "./components/LoginPage/login";
@@ -7,8 +7,9 @@ import AggregatorDashboard from "./components/AggregatorDashboard/Dashboard";
 import IndustryDashboard from "./components/IndustryDashboard/Dashboard";
 import AnalysisPage from "./components/FarmerDashBoard/CropAnalysis/AnalysisPage";
 import CreditsPage from "./components/FarmerDashBoard/CreditsPage/Credits";
+import ProfilePage from "./components/FarmerDashBoard/Profile/ProfilePage";
 import { useAuth } from "./context/AuthContext";
-import ProfileProvider from "./context/ProfileContext";
+import ProfileProvider, { ProfileContext } from "./context/ProfileContext";
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
 
@@ -26,6 +27,7 @@ function getDashboardByRole(role) {
 
 function AppContent() {
   const { session } = useAuth();
+  const { showProfile, closeProfile } = useContext(ProfileContext);
   const [hasSeenIntro, setHasSeenIntro] = useState(() => Boolean(session));
 
   const currentPage = useMemo(() => {
@@ -45,22 +47,25 @@ function AppContent() {
   };
 
   return (
-    <Routes>
-      <Route
-        path="/"
-        element={
-          currentPage === "intro" ? (
-            <IntroPage onLoginComplete={handleIntroComplete} />
-          ) : currentPage === "login" ? (
-            <LoginPage />
-          ) : (
-            getDashboardByRole(session?.role)
-          )
-        }
-      />
-      <Route path="/analysis" element={<AnalysisPage />} />
-      <Route path="/credits" element={<CreditsPage />} />
-    </Routes>
+    <>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            currentPage === "intro" ? (
+              <IntroPage onLoginComplete={handleIntroComplete} />
+            ) : currentPage === "login" ? (
+              <LoginPage />
+            ) : (
+              getDashboardByRole(session?.role)
+            )
+          }
+        />
+        <Route path="/analysis" element={<AnalysisPage />} />
+        <Route path="/credits" element={<CreditsPage />} />
+      </Routes>
+      <ProfilePage open={showProfile} onClose={closeProfile} />
+    </>
   );
 }
 

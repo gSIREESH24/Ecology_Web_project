@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, lazy, Suspense } from "react";
 import {
   Container,
   Box,
@@ -13,12 +13,28 @@ import {
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
 import "./login.css";
-import Lottie from "lottie-react";
-import hii from "../../assets/animations/hii.json";
 import logo from "../../assets/logo.png";
 import { useAuthSide, useAuth } from "../../context/AuthContext";
 import RoleSelector from "./RoleSelector";
 import ProfileCompletionForm from "./ProfileCompletionForm";
+
+// Lazy load Lottie and animation data
+const Lottie = lazy(() => import("lottie-react"));
+const LottieAnimation = () => {
+  const [animData, setAnimData] = useState(null);
+  
+  useEffect(() => {
+    import("../../assets/animations/hii.json").then(module => {
+      setAnimData(module.default);
+    });
+  }, []);
+
+  return animData ? (
+    <Suspense fallback={<div style={{ height: "100%" }} />}>
+      <Lottie animationData={animData} loop height="100%" />
+    </Suspense>
+  ) : null;
+};
 
 const validEmail = (value) => /\S+@\S+\.\S+/.test(value.trim());
 const validPassword = (value) => /^(?=.*\d)(?=.*[A-Za-z]).{6,}$/.test(value);
@@ -528,7 +544,7 @@ export default function AuthPageMUI() {
           <Box className="panel-orb panel-orb-two" />
           <Box className="panel-content">
             <Box className="panel-animation">
-              <Lottie animationData={hii} loop height="100%" />
+              <LottieAnimation />
             </Box>
 
             {showProfileStep ? (

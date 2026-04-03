@@ -1,14 +1,32 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useMemo } from "react";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
+
+// Check if user prefers reduced motion or has low-end device
+const useReducedMotion = () => {
+  return useMemo(() => {
+    if (typeof window !== "undefined") {
+      return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    }
+    return false;
+  }, []);
+};
 
 export default function IntroPage({ onLoginComplete }) {
   const containerRef = useRef(null);
+  const reducedMotion = useReducedMotion();
+
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end end"],
   });
 
-  const smoothProgress = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 });
+  // Use lower stiffness values for better performance
+  const smoothProgress = useSpring(scrollYProgress, { 
+    stiffness: reducedMotion ? 50 : 100, 
+    damping: reducedMotion ? 40 : 30, 
+    restDelta: 0.001,
+    mass: 0.5 // Reduce mass for faster animation
+  });
 
   const bgColor = useTransform(
     smoothProgress,
@@ -26,27 +44,28 @@ export default function IntroPage({ onLoginComplete }) {
     return () => unsubscribe();
   }, [onLoginComplete, smoothProgress]);
   
+  // Simplified animations for performance
   const stubbleVideoOpacity = useTransform(smoothProgress, [0, 0.15, 0.3], [1, 1, 0]);
-  const stubbleVideoScale = useTransform(smoothProgress, [0, 0.3], [1, 1.1]);
+  const stubbleVideoScale = useTransform(smoothProgress, [0, 0.3], [1, reducedMotion ? 1 : 1.1]);
 
   const smokeVideoOpacity = useTransform(smoothProgress, [0.1, 0.3, 0.5, 0.7], [0, 0.9, 0.9, 0]);
-  const smokeVideoScale = useTransform(smoothProgress, [0.1, 0.7], [1.2, 1]);
-  const smokeVideoY = useTransform(smoothProgress, [0.1, 0.6], ["20vh", "-30vh"]);
+  const smokeVideoScale = useTransform(smoothProgress, [0.1, 0.7], [reducedMotion ? 1 : 1.2, 1]);
+  const smokeVideoY = useTransform(smoothProgress, [0.1, 0.6], [reducedMotion ? "0vh" : "20vh", reducedMotion ? "0vh" : "-30vh"]);
 
   const ozoneVideoOpacity = useTransform(smoothProgress, [0.35, 0.45, 0.6, 0.8], [0, 1, 0.9, 0]);
-  const ozoneVideoScale = useTransform(smoothProgress, [0.4, 0.55, 0.7], [1, 1.05, 1.2]);
+  const ozoneVideoScale = useTransform(smoothProgress, [0.4, 0.55, 0.7], [1, reducedMotion ? 1 : 1.05, reducedMotion ? 1 : 1.2]);
   
   const ozoneRedOverlayOpacity = useTransform(smoothProgress, [0.45, 0.55, 0.7], [0, 1, 0]);
 
   const ozoneTextOpacity = useTransform(smoothProgress, [0.4, 0.45, 0.55], [0, 1, 0]);
-  const ozoneTextScale = useTransform(smoothProgress, [0.45, 0.55], [1, 1.2]);
-  const ozoneTextBlur = useTransform(smoothProgress, [0.45, 0.55], ["blur(0px)", "blur(10px)"]);
+  const ozoneTextScale = useTransform(smoothProgress, [0.45, 0.55], [1, reducedMotion ? 1 : 1.2]);
+  const ozoneTextBlur = useTransform(smoothProgress, [0.45, 0.55], ["blur(0px)", reducedMotion ? "blur(0px)" : "blur(10px)"]);
   const ozoneTextColor = useTransform(smoothProgress, [0.45, 0.55], ["#bcedff", "#ff5555"]);
 
   const textOpacity = useTransform(smoothProgress, [0, 0.1], [1, 0]);
 
   return (
-    <div ref={containerRef} style={{ height: "500vh", position: "relative", backgroundColor:"#0a0a0a", margin:0, padding:0 }}>
+    <div ref={containerRef} style={{ height: reducedMotion ? "200vh" : "500vh", position: "relative", backgroundColor:"#0a0a0a", margin:0, padding:0 }}>
       <motion.div 
         style={{ 
           position: "sticky", 
@@ -59,7 +78,8 @@ export default function IntroPage({ onLoginComplete }) {
           alignItems: "center",
           justifyContent: "center",
           margin: 0,
-          padding: 0
+          padding: 0,
+          willChange: reducedMotion ? "auto" : "background-color" // Only enable will-change when needed
         }}
       >
         <motion.div 

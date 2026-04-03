@@ -1,4 +1,4 @@
-import { Box, Button, MenuItem, TextField, Typography } from "@mui/material";
+import { Box, Button, MenuItem, TextField, Typography, memo } from "@mui/material";
 
 const PROFILE_FIELDS = {
   farmer: [
@@ -42,7 +42,7 @@ const ROLE_LABELS = {
   industry: "Industry",
 };
 
-export default function ProfileCompletionForm({
+const ProfileCompletionForm = memo(function ProfileCompletionForm({
   role,
   values,
   errors,
@@ -106,4 +106,6 @@ export default function ProfileCompletionForm({
       </Box>
     </form>
   );
-}
+});
+
+export default ProfileCompletionForm;

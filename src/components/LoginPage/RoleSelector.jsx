@@ -1,4 +1,4 @@
-import { Box, Button } from "@mui/material";
+import { Box, Button, memo } from "@mui/material";
 
 const ROLE_OPTIONS = [
   { value: "farmer", label: "Farmer" },
@@ -6,7 +6,7 @@ const ROLE_OPTIONS = [
   { value: "industry", label: "Industry" },
 ];
 
-export default function RoleSelector({ value, onChange }) {
+const RoleSelector = memo(function RoleSelector({ value, onChange }) {
   return (
     <Box className="role-grid">
       {ROLE_OPTIONS.map((role) => (
@@ -22,4 +22,6 @@ export default function RoleSelector({ value, onChange }) {
       ))}
     </Box>
   );
-}
+});
+
+export default RoleSelector;

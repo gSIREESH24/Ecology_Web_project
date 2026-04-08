@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Box, ToggleButtonGroup, ToggleButton } from "@mui/material";
 import { LayoutDashboard, Store } from "lucide-react";
-import Navbar from "./Navbar/navbar";
+import Navbar from "./navbar";
 import SupplyAnalytics from "./MainPage/SupplyAnalytics";
 import DemandPostings from "./MainPage/DemandPostings";
 import Marketplace from "./MainPage/Marketplace";

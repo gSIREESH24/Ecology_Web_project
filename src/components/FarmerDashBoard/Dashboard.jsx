@@ -1,5 +1,5 @@
 import { Box, Container, CssBaseline } from "@mui/material";
-import Navbar from "./NavBar/navbar";
+import Navbar from "./navbar";
 import MainPage from "./MainPage/MainPage";
 
 export default function Dashboard() {

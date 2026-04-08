@@ -7,9 +7,9 @@ import "leaflet-draw/dist/leaflet.draw.css";
 const FarmerDashboard = lazy(() => import("./components/FarmerDashBoard/Dashboard"));
 const AggregatorDashboard = lazy(() => import("./components/AggregatorDashboard/Dashboard"));
 const IndustryDashboard = lazy(() => import("./components/IndustryDashboard/Dashboard"));
-const AnalysisPage = lazy(() => import("./components/FarmerDashBoard/CropAnalysis/AnalysisPage"));
-const CreditsPage = lazy(() => import("./components/FarmerDashBoard/CreditsPage/Credits"));
-const ProfilePage = lazy(() => import("./components/FarmerDashBoard/Profile/ProfilePage"));
+const AnalysisPage = lazy(() => import("./components/FarmerDashBoard/AnalysisPage"));
+const CreditsPage = lazy(() => import("./components/FarmerDashBoard/Credits"));
+const ProfilePage = lazy(() => import("./components/FarmerDashBoard/ProfilePage"));
 
 const LoadingFallback = () => (
   <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
@@ -24,7 +24,7 @@ function AppContent() {
     <>
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
-          <Route path="/" element={<FarmerDashboard />} />
+          <Route path="/" element={<AggregatorDashboard />} />
           <Route path="/industry" element={<IndustryDashboard />} />
           <Route path="/farmer" element={<FarmerDashboard />} />
           <Route path="/aggregator" element={<AggregatorDashboard />} />

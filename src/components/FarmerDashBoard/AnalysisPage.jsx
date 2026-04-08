@@ -13,7 +13,7 @@ import {
   CssBaseline
 } from "@mui/material";
 import { Camera, Image as ImageIcon, Zap, Plus, FlaskConical, MapPin, Loader2 } from "lucide-react";
-import Navbar from "../NavBar/navbar";
+import Navbar from "./navbar";
 import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 

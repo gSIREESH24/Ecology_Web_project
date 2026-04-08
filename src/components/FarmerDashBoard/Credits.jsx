@@ -1,5 +1,5 @@
 import { Box, Typography, Container, Grid, Card, CardContent, CssBaseline } from "@mui/material";
-import Navbar from "../NavBar/navbar";
+import Navbar from "./navbar";
 import { motion } from "framer-motion";
 import { WalletCards, Coins, Award, CheckCircle2, Factory, Sprout } from "lucide-react";
 

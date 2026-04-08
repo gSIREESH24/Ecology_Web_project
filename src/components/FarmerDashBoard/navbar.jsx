@@ -3,7 +3,7 @@ import { AppBar, Toolbar, Typography, Box, Avatar, Button, IconButton } from "@m
 import LanguageIcon from "@mui/icons-material/Language";
 import GrassIcon from "@mui/icons-material/Grass";
 import PaidIcon from "@mui/icons-material/Paid";
-import { ProfileContext } from "../../../context/ProfileContext";
+import { ProfileContext } from "../../context/ProfileContext";
 import { useNavigate } from "react-router-dom";
 
 export default function Navbar() {

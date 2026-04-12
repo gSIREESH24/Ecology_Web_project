@@ -1,4 +1,5 @@
-import { Box, Button, memo } from "@mui/material";
+import { memo } from "react";
+import { Box, Button } from "@mui/material";
 
 const ROLE_OPTIONS = [
   { value: "farmer", label: "Farmer" },

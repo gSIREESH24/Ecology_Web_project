@@ -1,4 +1,5 @@
-import { Box, Button, MenuItem, TextField, Typography, memo } from "@mui/material";
+import { memo } from "react";
+import { Box, Button, MenuItem, TextField, Typography } from "@mui/material";
 
 const PROFILE_FIELDS = {
   farmer: [

@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import ProfileProvider, { ProfileContext } from "./context/ProfileContext";
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
+import LoginPage from "./components/LoginPage/login";
 
 const FarmerDashboard = lazy(() => import("./components/FarmerDashBoard/Dashboard"));
 const AggregatorDashboard = lazy(() => import("./components/AggregatorDashboard/Dashboard"));
@@ -24,7 +25,7 @@ function AppContent() {
     <>
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
-          <Route path="/" element={<AggregatorDashboard />} />
+          <Route path="/" element={<LoginPage />} />
           <Route path="/industry" element={<IndustryDashboard />} />
           <Route path="/farmer" element={<FarmerDashboard />} />
           <Route path="/aggregator" element={<AggregatorDashboard />} />

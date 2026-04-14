@@ -19,6 +19,18 @@ const userSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    coordinates: {
+      lat: { type: Number, default: null },
+      lng: { type: Number, default: null },
+    },
+    landCoordinates: [
+      {
+        lat: { type: Number },
+        lng: { type: Number },
+      },
+    ],
+    profilePhotoUrl: { type: String, default: "" },
+    notificationCount: { type: Number, default: 0 },
     password: {
       type: String,
       required: true,
@@ -49,6 +61,10 @@ const userSchema = new mongoose.Schema(
 
       companyName: { type: String }, // industry
       industryType: { type: String }, // industry
+      // industry location (GPS)
+      industryLat: { type: Number },
+      industryLng: { type: Number },
+      industryAddress: { type: String },
     },
   },
   { timestamps: true }

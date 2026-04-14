@@ -1,0 +1,121 @@
+{
+  "appName": "AgriCycle",
+  "tagline": "நிலையான விவசாய தளம்",
+  "common": {
+    "save": "சேமி", "cancel": "ரத்து செய்", "edit": "திருத்து", "delete": "நீக்கு",
+    "close": "மூடு", "submit": "சமர்ப்பி", "loading": "ஏற்றுகிறது...", "error": "பிழை",
+    "success": "வெற்றி", "yes": "ஆம்", "no": "இல்லை", "confirm": "உறுதிப்படுத்து",
+    "back": "பின்னால்", "next": "அடுத்து", "search": "தேடு", "filter": "வடிகட்டு",
+    "all": "அனைத்தும்", "view": "விவரங்கள் பார்", "accept": "ஏற்று", "reject": "நிரா",
+    "upload": "பதிவேற்று", "change": "மாற்று", "remove": "நீக்கு", "refresh": "புதுப்பி",
+    "clear": "அழி", "reset": "மீட்டமை", "generate": "உருவாக்கு", "download": "பதிவிறக்கு"
+  },
+  "nav": {
+    "dashboard": "டாஷ்போர்டு", "profile": "சுயவிவரம்", "logout": "வெளியேறு",
+    "notifications": "அறிவிப்புகள்", "language": "மொழி", "credits": "கிரெடிட்கள்",
+    "marketplace": "சந்தை", "analytics": "பகுப்பாய்வு", "requests": "கோரிக்கைகள்",
+    "demands": "தேவைகள்", "overview": "கண்ணோட்டம்", "map": "வரைபடம்", "route": "வழி"
+  },
+  "auth": {
+    "join": "AgriCycle இல் சேரு", "subtitle": "உங்கள் கணக்கை உருவாக்கி தாக்கத்தை ஏற்படுத்துங்கள்.",
+    "signInTitle": "மீண்டும் வரவேற்கிறோம்", "signInSubtitle": "உங்கள் AgriCycle கணக்கில் உள்நுழைக.",
+    "fullName": "முழு பெயர்", "namePlaceholder": "எ.கா. ரவி குமார்",
+    "phone": "தொலைபேசி எண்", "phonePlaceholder": "எ.கா. 9876543210",
+    "location": "இடம் / கிராமம் / நகரம்", "locationPlaceholder": "எ.கா. அமிர்தசரஸ், பஞ்சாப்",
+    "password": "கடவுச்சொல்", "passwordPlaceholder": "குறைந்தபட்சம் 6 எழுத்துகள்",
+    "selectRole": "உங்கள் பாத்திரத்தை தேர்ந்தெடு", "createAccount": "கணக்கை உருவாக்கு",
+    "alreadyHave": "ஏற்கனவே கணக்கு உள்ளதா?", "signIn": "உள்நுழை",
+    "noAccount": "கணக்கு இல்லையா?", "signUp": "பதிவு செய்",
+    "farmer": "விவசாயி", "aggregator": "திரட்டுபவர்", "industry": "தொழில்",
+    "completeProfile": "சுயவிவரத்தை முடி", "profileSubtitle": "சில கூடுதல் விவரங்கள்."
+  },
+  "profile": {
+    "title": "என் சுயவிவரம்", "editProfile": "சுயவிவரத்தை திருத்து", "saveProfile": "சுயவிவரத்தை சேமி",
+    "uploadPhoto": "புகைப்படம் பதிவேற்று", "changePhoto": "புகைப்படம் மாற்று",
+    "name": "முழு பெயர்", "phone": "தொலைபேசி எண்", "gender": "பாலினம்",
+    "location": "இடம்", "pincode": "பின்கோடு", "coordinates": "GPS ஆயத்தொலைவுகள்",
+    "male": "ஆண்", "female": "பெண்", "other": "மற்றவை",
+    "landSize": "நிலத்தின் அளவு (ஏக்கர்)", "operatingArea": "செயல்பாட்டு பகுதி",
+    "storageCapacity": "சேமிப்பு திறன் (டன்)", "vehicleType": "வாகன வகை",
+    "experience": "அனுபவம்", "companyName": "நிறுவன பெயர்",
+    "industryType": "தொழில் வகை", "profileComplete": "சுயவிவரம் முழுமையானது",
+    "personalInfo": "தனிப்பட்ட தகவல்", "businessInfo": "வணிக தகவல்",
+    "signOut": "வெளியேறு", "myRequests": "என் சேகரிப்பு கோரிக்கைகள்"
+  },
+  "farmer": {
+    "welcome": "மீண்டும் வரவேற்கிறோம், விவசாயி!", "myFields": "என் வயல்கள்",
+    "fieldActivity": "வயல் செயல்பாடு", "farmTerritory": "பண்ணை பகுதி",
+    "requestPickup": "சேகரிப்பு கோரிக்கை", "newRequest": "புதிய சேகரிப்பு கோரிக்கை",
+    "myRequests": "என் கோரிக்கைகள்", "carbonCredits": "கார்பன் கிரெடிட்கள்",
+    "viewCarbonPlan": "கார்பன் திட்டம் பார்",
+    "cropType": "பயிர் வகை", "biomass": "உயிரி திணிவு (டன்)",
+    "priceExpectation": "எதிர்பார்க்கும் விலை (₹/டன்)", "qualityNotes": "தர குறிப்புகள்",
+    "cropPhoto": "பயிர் புகைப்படம்", "pickupDate": "விரும்பும் சேகரிப்பு தேதி",
+    "getLocation": "என் GPS இடத்தை பெறு", "gettingLocation": "இடம் கண்டறிகிறது...",
+    "locationSet": "இடம் அமைக்கப்பட்டது!", "locationError": "இடத்தை கண்டறிய முடியவில்லை",
+    "manualLocation": "அல்லது முகவரியை நீங்களே தட்டச்சு செய்யுங்கள்",
+    "drawLand": "வரைபடத்தில் நிலத்தை குறி", "saveLand": "நிலம் எல்லை சேமி",
+    "pending": "நிலுவையில்", "accepted": "ஏற்றுக்கொள்ளப்பட்டது", "collected": "சேகரிக்கப்பட்டது",
+    "cancelled": "ரத்து", "noRequests": "இன்னும் சேகரிப்பு கோரிக்கைகள் இல்லை",
+    "submitRequest": "சேகரிப்பு கோரிக்கை சமர்ப்பி", "requestSuccess": "கோரிக்கை வெற்றிகரமாக சமர்ப்பிக்கப்பட்டது!"
+  },
+  "carbon": {
+    "title": "கார்பன் கிரெடிட் திட்டம்", "yourCredits": "உங்கள் கிரெடிட்கள்",
+    "co2Saved": "சேமிக்கப்பட்ட CO₂", "treesEquivalent": "மரங்களுக்கு சமம்",
+    "howItWorks": "இது எப்படி வேலை செய்கிறது", "formula": "1 டன் = 1.8 கிரெடிட்கள்",
+    "earn": "கிரெடிட்கள் சம்பாதி", "history": "பரிவர்த்தனை வரலாறு",
+    "impact": "உங்கள் சுற்றுச்சூழல் தாக்கம்", "perTon": "சேகரிக்கப்பட்ட டன்னுக்கு",
+    "co2PerCredit": "கிரெடிட்டுக்கு 900 கிகி CO₂", "noHistory": "இன்னும் பரிவர்த்தனைகள் இல்லை",
+    "explanation": "உங்கள் பயிர் கழிவுகள் எரிக்கப்படாமல் சேகரிக்கப்படும்போது, ஒவ்வொரு டன்னுக்கும் கார்பன் கிரெடிட்கள் சம்பாதிப்பீர்கள்.",
+    "calculation": "கணக்கீடு", "biomassCollected": "சேகரிக்கப்பட்ட உயிரி திணிவு",
+    "creditsEarned": "சம்பாதித்த கிரெடிட்கள்", "co2Prevented": "தடுக்கப்பட்ட CO₂",
+    "futureSell": "எதிர்காலம்: கிரெடிட்களை விற்கவும்",
+    "futureSellDesc": "விரைவில் சரிபார்க்கப்பட்ட சந்தைகளில் உங்கள் கார்பன் கிரெடிட்களை விற்கலாம்."
+  },
+  "aggregator": {
+    "title": "திரட்டுபவர் டாஷ்போர்டு", "farmerRequests": "விவசாயி சேகரிப்பு கோரிக்கைகள்",
+    "industryDemands": "தொழில் தேவைகள்", "routeMap": "வழி & வரைபடம்",
+    "routeOptimization": "வழி உகந்தாக்கம்", "generateRoute": "சிறந்த வழியை உருவாக்கு",
+    "resetRoute": "வழியை மீட்டமை", "animating": "வழி அசைவடைகிறது...",
+    "truckCapacity": "டிரக் கொள்ளளவு", "selectedFarms": "தேர்ந்த பண்ணைகள்",
+    "totalBiomass": "மொத்த உயிரி திணிவு", "distance": "தூரம்",
+    "estimatedTime": "மதிப்பிடப்பட்ட நேரம்", "fuelCost": "எரிபொருள் செலவு",
+    "available": "கிடைக்கும்", "scheduled": "திட்டமிடப்பட்டது", "collected": "சேகரிக்கப்பட்டது",
+    "acceptRequest": "கோரிக்கையை ஏற்று", "markCollected": "சேகரிக்கப்பட்டதாக குறி",
+    "schedulePickup": "சேகரிப்பு திட்டமிடு", "pickupDate": "சேகரிப்பு தேதி",
+    "openInMaps": "Google Maps இல் திற", "noRequests": "இன்னும் விவசாயி கோரிக்கைகள் இல்லை",
+    "noDemands": "இன்னும் தொழில் தேவைகள் இல்லை", "myLocation": "என் இடம்",
+    "myLocationDesc": "GPS இடத்தை கண்டறிய கிளிக் செய்யுங்கள்",
+    "demandAccepted": "தேவை ஏற்றுக்கொள்ளப்பட்டது!", "requestAccepted": "கோரிக்கை ஏற்றுக்கொள்ளப்பட்டது!"
+  },
+  "industry": {
+    "title": "தொழில் டாஷ்போர்டு", "postDemand": "தேவையை பதிவிடு",
+    "myDemands": "என் தேவைகள்", "supplyMarketplace": "வழங்கல் சந்தை",
+    "companyName": "நிறுவன பெயர்", "industryType": "தொழில் வகை",
+    "quantityNeeded": "தேவையான அளவு (டன்)", "priceOffered": "வழங்கும் விலை (₹/டன்)",
+    "deadline": "கடைசி தேதி", "description": "விளக்கம்",
+    "locationAddress": "டெலிவரி இடம்", "demandStatus": "நிலை",
+    "open": "திறந்த", "accepted": "ஏற்றுக்கொள்ளப்பட்டது", "fulfilled": "நிறைவேற்றப்பட்டது", "closed": "மூடப்பட்டது",
+    "createDemand": "புதிய தேவை உருவாக்கு", "editDemand": "தேவையை திருத்து",
+    "closeDemand": "தேவையை மூடு", "noDemands": "இன்னும் தேவைகள் இல்லை",
+    "demandPosted": "தேவை வெற்றிகரமாக பதிவிடப்பட்டது!", "demandClosed": "தேவை மூடப்பட்டது.",
+    "supplyAnalytics": "வழங்கல் பகுப்பாய்வு", "biomassAvailable": "கிடைக்கும் உயிரி திணிவு",
+    "cropBreakdown": "பயிர் விவரக்குறிப்பு"
+  },
+  "status": {
+    "pending": "நிலுவையில்", "accepted": "ஏற்றுக்கொள்ளப்பட்டது", "collected": "சேகரிக்கப்பட்டது",
+    "cancelled": "ரத்து", "open": "திறந்த", "fulfilled": "நிறைவேற்றப்பட்டது", "closed": "மூடப்பட்டது",
+    "available": "கிடைக்கும்", "scheduled": "திட்டமிடப்பட்டது"
+  },
+  "crops": {
+    "Wheat": "கோதுமை", "Paddy": "நெல்", "Maize": "சோளம்",
+    "Sugarcane": "கரும்பு", "Cotton": "பருத்தி", "Other": "மற்றவை", "Any": "எதுவும்"
+  },
+  "map": {
+    "satellite": "செயற்கைக்கோள் காட்சி", "standard": "நிலையான காட்சி",
+    "liveTracking": "நேரடி கண்காணிப்பு செயலில்", "clickForMaps": "Google Maps இல் திறக்க குறியீட்டை கிளிக் செய்யுங்கள்",
+    "legend": "விளக்கம்", "optimisedRoute": "உகந்தாக்கப்பட்ட வழி",
+    "yourBase": "உங்கள் இடம்", "farmerLocation": "விவசாயியின் இடம்",
+    "industryLocation": "தொழிலின் இடம்"
+  }
+}

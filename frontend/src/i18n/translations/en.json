@@ -1,0 +1,123 @@
+{
+  "appName": "AgriCycle",
+  "tagline": "Sustainable Agriculture Platform",
+  "common": {
+    "save": "Save", "cancel": "Cancel", "edit": "Edit", "delete": "Delete",
+    "close": "Close", "submit": "Submit", "loading": "Loading...", "error": "Error",
+    "success": "Success", "yes": "Yes", "no": "No", "confirm": "Confirm",
+    "back": "Back", "next": "Next", "search": "Search", "filter": "Filter",
+    "all": "All", "view": "View Details", "accept": "Accept", "reject": "Reject",
+    "upload": "Upload", "change": "Change", "remove": "Remove", "refresh": "Refresh",
+    "clear": "Clear", "reset": "Reset", "generate": "Generate", "download": "Download"
+  },
+  "nav": {
+    "dashboard": "Dashboard", "profile": "Profile", "logout": "Sign Out",
+    "notifications": "Notifications", "language": "Language", "credits": "Credits",
+    "marketplace": "Marketplace", "analytics": "Analytics", "requests": "Requests",
+    "demands": "Demands", "overview": "Overview", "map": "Map", "route": "Route"
+  },
+  "auth": {
+    "join": "Join AgriCycle", "subtitle": "Create your account and start making an impact.",
+    "signInTitle": "Welcome Back", "signInSubtitle": "Sign in to your AgriCycle account.",
+    "fullName": "Full Name", "namePlaceholder": "e.g. Ravi Kumar",
+    "phone": "Phone Number", "phonePlaceholder": "e.g. 9876543210",
+    "location": "Location / Village / City", "locationPlaceholder": "e.g. Amritsar, Punjab",
+    "password": "Password", "passwordPlaceholder": "Min. 6 characters",
+    "selectRole": "Select Your Role", "createAccount": "Create Account",
+    "alreadyHave": "Already have an account?", "signIn": "Sign In",
+    "noAccount": "Don't have an account?", "signUp": "Sign Up",
+    "farmer": "Farmer", "aggregator": "Aggregator", "industry": "Industry",
+    "completeProfile": "Complete Your Profile", "profileSubtitle": "Just a few more details."
+  },
+  "profile": {
+    "title": "My Profile", "editProfile": "Edit Profile", "saveProfile": "Save Profile",
+    "uploadPhoto": "Upload Photo", "changePhoto": "Change Photo",
+    "name": "Full Name", "phone": "Phone Number", "gender": "Gender",
+    "location": "Location", "pincode": "Pincode", "coordinates": "GPS Coordinates",
+    "male": "Male", "female": "Female", "other": "Other",
+    "landSize": "Land Size (Acres)", "operatingArea": "Operating Area",
+    "storageCapacity": "Storage Capacity (tons)", "vehicleType": "Vehicle Type",
+    "experience": "Experience", "companyName": "Company Name",
+    "industryType": "Industry Type", "profileComplete": "Profile Complete",
+    "personalInfo": "Personal Information", "businessInfo": "Business Information",
+    "signOut": "Sign Out", "myRequests": "My Collection Requests"
+  },
+  "farmer": {
+    "welcome": "Welcome back, Farmer!", "myFields": "My Fields",
+    "fieldActivity": "Fields Activity", "farmTerritory": "Farm Territory",
+    "requestPickup": "Request Pickup", "newRequest": "New Collection Request",
+    "myRequests": "My Requests", "carbonCredits": "Carbon Credits",
+    "viewCarbonPlan": "View Carbon Plan",
+    "cropType": "Crop Type", "biomass": "Biomass Quantity (tons)",
+    "priceExpectation": "Price Expectation (₹/ton)", "qualityNotes": "Quality Notes",
+    "cropPhoto": "Crop Photo", "pickupDate": "Preferred Pickup Date",
+    "getLocation": "Get My GPS Location", "gettingLocation": "Getting location...",
+    "locationSet": "Location Set!", "locationError": "Could not get location",
+    "manualLocation": "Or type address manually",
+    "drawLand": "Draw Your Land on Map", "saveLand": "Save Land Boundary",
+    "pending": "Pending", "accepted": "Accepted", "collected": "Collected",
+    "cancelled": "Cancelled", "noRequests": "No collection requests yet",
+    "submitRequest": "Submit Collection Request", "requestSuccess": "Request submitted successfully!"
+  },
+  "carbon": {
+    "title": "Carbon Credit Plan", "yourCredits": "Your Credits",
+    "co2Saved": "CO₂ Saved", "treesEquivalent": "Trees Equivalent",
+    "howItWorks": "How It Works", "formula": "1 ton stubble = 1.8 credits",
+    "earn": "Earn Credits", "history": "Transaction History",
+    "impact": "Your Environmental Impact", "perTon": "per ton collected",
+    "co2PerCredit": "900 kg CO₂ per credit", "noHistory": "No transactions yet",
+    "explanation": "When your crop stubble is collected instead of burned, you earn carbon credits for every ton. These represent real CO₂ emissions prevented.",
+    "calculation": "Calculation",
+    "biomassCollected": "Biomass Collected",
+    "creditsEarned": "Credits Earned",
+    "co2Prevented": "CO₂ Prevented",
+    "futureSell": "Future: Sell Credits",
+    "futureSellDesc": "Soon you'll be able to sell your carbon credits in verified markets."
+  },
+  "aggregator": {
+    "title": "Aggregator Dashboard", "farmerRequests": "Farmer Collection Requests",
+    "industryDemands": "Industry Demands", "routeMap": "Route & Map",
+    "routeOptimization": "Route Optimization", "generateRoute": "Generate Best Route",
+    "resetRoute": "Reset Route", "animating": "Animating route...",
+    "truckCapacity": "Truck Capacity", "selectedFarms": "Selected Farms",
+    "totalBiomass": "Total Biomass", "distance": "Distance",
+    "estimatedTime": "Estimated Time", "fuelCost": "Fuel Cost",
+    "available": "Available", "scheduled": "Scheduled", "collected": "Collected",
+    "acceptRequest": "Accept Request", "markCollected": "Mark Collected",
+    "schedulePickup": "Schedule Pickup", "pickupDate": "Pickup Date",
+    "openInMaps": "Open in Google Maps", "noRequests": "No farmer requests yet",
+    "noDemands": "No industry demands yet", "myLocation": "My Location",
+    "myLocationDesc": "Click to detect your GPS location",
+    "demandAccepted": "Demand Accepted!", "requestAccepted": "Request Accepted!"
+  },
+  "industry": {
+    "title": "Industry Dashboard", "postDemand": "Post Demand",
+    "myDemands": "My Demands", "supplyMarketplace": "Supply Marketplace",
+    "companyName": "Company Name", "industryType": "Industry Type",
+    "quantityNeeded": "Quantity Needed (tons)", "priceOffered": "Price Offered (₹/ton)",
+    "deadline": "Deadline", "description": "Description",
+    "locationAddress": "Delivery Location", "demandStatus": "Status",
+    "open": "Open", "accepted": "Accepted", "fulfilled": "Fulfilled", "closed": "Closed",
+    "createDemand": "Create New Demand", "editDemand": "Edit Demand",
+    "closeDemand": "Close Demand", "noDemands": "No demands posted yet",
+    "demandPosted": "Demand posted successfully!", "demandClosed": "Demand closed.",
+    "supplyAnalytics": "Supply Analytics", "biomassAvailable": "Biomass Available",
+    "cropBreakdown": "Crop Breakdown"
+  },
+  "status": {
+    "pending": "Pending", "accepted": "Accepted", "collected": "Collected",
+    "cancelled": "Cancelled", "open": "Open", "fulfilled": "Fulfilled", "closed": "Closed",
+    "available": "Available", "scheduled": "Scheduled"
+  },
+  "crops": {
+    "Wheat": "Wheat", "Paddy": "Paddy", "Maize": "Maize",
+    "Sugarcane": "Sugarcane", "Cotton": "Cotton", "Other": "Other", "Any": "Any"
+  },
+  "map": {
+    "satellite": "Satellite View", "standard": "Standard View",
+    "liveTracking": "Live Tracking Active", "clickForMaps": "Click marker to open in Google Maps",
+    "legend": "Legend", "optimisedRoute": "Optimised Route",
+    "yourBase": "Your Location", "farmerLocation": "Farmer Location",
+    "industryLocation": "Industry Location"
+  }
+}

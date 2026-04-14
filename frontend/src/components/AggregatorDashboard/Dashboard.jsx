@@ -1,26 +1,15 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
-  Avatar,
-  Box,
-  Button,
-  Container,
-  Dialog,
-  DialogContent,
-  Grid,
-  IconButton,
-  LinearProgress,
-  Stack,
-  TextField,
-  Typography,
+  Avatar, Box, Button, Container, Dialog, DialogContent, Grid,
+  IconButton, LinearProgress, Stack, TextField, Typography, Chip,
+  Badge, Tabs, Tab, CircularProgress, Alert, Snackbar, Card, CardContent, Divider
 } from "@mui/material";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import LocationOnOutlinedIcon from "@mui/icons-material/LocationOnOutlined";
-import LocalPhoneOutlinedIcon from "@mui/icons-material/LocalPhoneOutlined";
 import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined";
 import AgricultureOutlinedIcon from "@mui/icons-material/AgricultureOutlined";
-import CalendarMonthOutlinedIcon from "@mui/icons-material/CalendarMonthOutlined";
-import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import RouteOutlinedIcon from "@mui/icons-material/RouteOutlined";
 import ScaleOutlinedIcon from "@mui/icons-material/ScaleOutlined";
 import TuneRoundedIcon from "@mui/icons-material/TuneRounded";
@@ -30,24 +19,62 @@ import AccessTimeRoundedIcon from "@mui/icons-material/AccessTimeRounded";
 import LocalGasStationRoundedIcon from "@mui/icons-material/LocalGasStationRounded";
 import EventAvailableRoundedIcon from "@mui/icons-material/EventAvailableRounded";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
-import { MapContainer, TileLayer, CircleMarker, Polyline, Tooltip } from "react-leaflet";
+import MyLocationIcon from "@mui/icons-material/MyLocation";
+import FactoryIcon from "@mui/icons-material/Factory";
+import RestartAltIcon from "@mui/icons-material/RestartAlt";
+import NotificationsIcon from "@mui/icons-material/Notifications";
+import { MapContainer, TileLayer, CircleMarker, Polyline, Tooltip, Marker, useMap } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 import { useAuth } from "../../context/AuthContext";
-import { base, farmsSeed, filters, statusColor } from "./data";
-import { distanceKm, planRoute } from "./utils";
-import { FarmCard, MetricBox, Shell, SmallSummary, StatCard } from "./components";
+import { statusColor, demandStatusColor } from "./data";
+import LanguageSwitcher from "../common/LanguageSwitcher";
+import api from "../../api";
 
-function MapLegend() {
+// Fix leaflet icons
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+});
+
+const haversineKm = (lat1, lng1, lat2, lng2) => {
+  const R = 6371, dLat = ((lat2-lat1)*Math.PI)/180, dLng = ((lng2-lng1)*Math.PI)/180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
+  return +(R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a))).toFixed(1);
+};
+
+function MapBounds({ points }) {
+  const map = useMap();
+  useEffect(() => {
+    if (points.length > 0) {
+      try { map.fitBounds(points, { padding: [40, 40] }); } catch {}
+    }
+  }, [points, map]);
+  return null;
+}
+
+function MapLegend({ t }) {
   return (
-    <Box sx={{ position: "absolute", left: 24, bottom: 18, borderRadius: 4, boxShadow: "0 10px 26px rgba(0,0,0,0.12)", bgcolor: "#fff", p: 2 }}>
-      {["available", "scheduled", "collected"].map((status) => (
-        <Stack key={status} direction="row" spacing={1.2} alignItems="center" sx={{ mb: 1 }}>
-          <Box sx={{ width: 18, height: 18, borderRadius: "50%", bgcolor: statusColor[status] }} />
-          <Typography sx={{ textTransform: "capitalize" }}>{status}</Typography>
+    <Box sx={{ position: "absolute", left: 16, bottom: 16, borderRadius: 3, boxShadow: "0 8px 24px rgba(0,0,0,0.12)", bgcolor: "rgba(255,255,255,0.95)", p: 2, backdropFilter: "blur(8px)", zIndex: 999 }}>
+      {[["pending","Pending"],["accepted","Accepted"],["collected","Collected"]].map(([s,l]) => (
+        <Stack key={s} direction="row" spacing={1} alignItems="center" mb={0.8}>
+          <Box sx={{ width: 14, height: 14, borderRadius: "50%", bgcolor: statusColor[s] }} />
+          <Typography variant="caption" fontWeight="600">{l}</Typography>
         </Stack>
       ))}
-      <Stack direction="row" spacing={1.2} alignItems="center">
-        <Box sx={{ width: 32, borderTop: "3px dashed #3a7f66" }} />
-        <Typography sx={{ fontWeight: 700 }}>Optimised Route</Typography>
+      <Stack direction="row" spacing={1} alignItems="center" mt={0.5}>
+        <Box sx={{ width: 28, borderTop: "3px dashed #3a7f66" }} />
+        <Typography variant="caption" fontWeight="700">Route</Typography>
+      </Stack>
+      <Stack direction="row" spacing={1} alignItems="center" mt={0.5}>
+        <Box sx={{ width: 14, height: 14, borderRadius: "3px", bgcolor: "#f59e0b" }} />
+        <Typography variant="caption" fontWeight="600">You</Typography>
+      </Stack>
+      <Stack direction="row" spacing={1} alignItems="center" mt={0.5}>
+        <Box sx={{ width: 14, height: 14, borderRadius: "50%", bgcolor: "#4da6ff" }} />
+        <Typography variant="caption" fontWeight="600">Industry</Typography>
       </Stack>
     </Box>
   );
@@ -55,84 +82,226 @@ function MapLegend() {
 
 export default function AggregatorDashboard() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { session, logout } = useAuth();
-  const [farms, setFarms] = useState(farmsSeed);
+
+  // Data state
+  const [farmerRequests, setFarmerRequests] = useState([]);
+  const [demands, setDemands] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState("all");
+  const [activeTab, setActiveTab] = useState(0);
+
+  // Map / Route state
+  const [myCoords, setMyCoords] = useState(null); // [lat, lng]
   const [selectedIds, setSelectedIds] = useState([]);
   const [capacity, setCapacity] = useState(10);
-  const [route, setRoute] = useState(null);
+  const [route, setRoute] = useState(null); // { routeCoords, segments, distanceKm, durationMin }
+  const [animatedSegments, setAnimatedSegments] = useState([]);
+  const [animating, setAnimating] = useState(false);
+  const [routeLoading, setRouteLoading] = useState(false);
+  const animRef = useRef(null);
+
+  // Modal state
   const [modalFarm, setModalFarm] = useState(null);
   const [pickup, setPickup] = useState({ date: "", time: "08:00" });
+  const [snack, setSnack] = useState({ open: false, msg: "", severity: "success" });
 
-  const filtered = useMemo(
-    () => (activeFilter === "all" ? farms : farms.filter((farm) => farm.status === activeFilter)),
-    [activeFilter, farms]
-  );
-  const selected = useMemo(
-    () => farms.filter((farm) => selectedIds.includes(farm.id)),
-    [farms, selectedIds]
-  );
-  const selectedBiomass = selected.reduce((sum, farm) => sum + farm.biomass, 0);
+  // Notification
+  const notifCount = session?.notificationCount || 0;
+
+  // Fetch data
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [reqRes, demRes] = await Promise.all([
+        api.get("/collections"),
+        api.get("/demands")
+      ]);
+      setFarmerRequests(reqRes.data.requests || []);
+      setDemands(demRes.data.demands || []);
+    } catch (err) {
+      console.error(err);
+    } finally { setLoading(false); }
+  }, []);
+
+  useEffect(() => { fetchData(); }, [fetchData]);
+
+  // Get my GPS location
+  const getMyLocation = () => {
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const { latitude: lat, longitude: lng } = pos.coords;
+        setMyCoords([lat, lng]);
+        try { await api.patch("/users/location", { lat, lng }); } catch {}
+        // Clear notification count
+        try { await api.patch("/users/notifications/clear"); } catch {}
+        setSnack({ open: true, msg: "📍 Location set!", severity: "success" });
+      },
+      (err) => setSnack({ open: true, msg: "Location access denied: " + err.message, severity: "error" })
+    );
+  };
+
+  useEffect(() => {
+    if (session?.coordinates?.lat && session?.coordinates?.lng) {
+      setMyCoords([session.coordinates.lat, session.coordinates.lng]);
+    }
+  }, [session]);
+
+  // Filtered farms
+  const filtered = useMemo(() =>
+    activeFilter === "all" ? farmerRequests : farmerRequests.filter(r => r.status === activeFilter),
+    [activeFilter, farmerRequests]);
+
+  const selected = useMemo(() =>
+    farmerRequests.filter(r => selectedIds.includes(r._id)),
+    [farmerRequests, selectedIds]);
+
+  const selectedBiomass = selected.reduce((s, r) => s + (r.biomassQuantity || 0), 0);
+
   const counts = {
-    available: farms.filter((farm) => farm.status === "available").length,
-    scheduled: farms.filter((farm) => farm.status === "scheduled").length,
-    collected: farms.filter((farm) => farm.status === "collected").length,
+    pending: farmerRequests.filter(r => r.status === "pending").length,
+    accepted: farmerRequests.filter(r => r.status === "accepted").length,
+    collected: farmerRequests.filter(r => r.status === "collected").length,
   };
 
-  const toggleFarm = (farm) => {
-    if (farm.status === "collected") return;
-    setSelectedIds((current) =>
-      current.includes(farm.id) ? current.filter((id) => id !== farm.id) : [...current, farm.id]
-    );
+  const toggleFarm = (req) => {
+    if (req.status === "collected") return;
+    setSelectedIds(cur => cur.includes(req._id) ? cur.filter(id => id !== req._id) : [...cur, req._id]);
   };
 
-  const confirmSchedule = () => {
-    if (!modalFarm || !pickup.date) return;
-    setFarms((current) =>
-      current.map((farm) =>
-        farm.id === modalFarm.id
-          ? { ...farm, status: "scheduled", pickupDate: pickup.date, pickupTime: pickup.time }
-          : farm
-      )
-    );
-    setModalFarm(null);
+  // Accept request
+  const acceptRequest = async (id) => {
+    try {
+      await api.patch(`/collections/${id}/accept`);
+      setSnack({ open: true, msg: t("aggregator.requestAccepted"), severity: "success" });
+      fetchData();
+      setModalFarm(null);
+    } catch (e) {
+      setSnack({ open: true, msg: e.response?.data?.message || "Failed", severity: "error" });
+    }
   };
+
+  // Mark collected
+  const markCollected = async (id) => {
+    try {
+      await api.patch(`/collections/${id}/collect`);
+      setSnack({ open: true, msg: "✅ Marked as collected! Carbon credits awarded.", severity: "success" });
+      fetchData();
+      setModalFarm(null);
+    } catch (e) {
+      setSnack({ open: true, msg: e.response?.data?.message || "Failed", severity: "error" });
+    }
+  };
+
+  // Accept demand
+  const acceptDemand = async (id) => {
+    try {
+      await api.patch(`/demands/${id}/accept`);
+      setSnack({ open: true, msg: t("aggregator.demandAccepted"), severity: "success" });
+      fetchData();
+    } catch (e) {
+      setSnack({ open: true, msg: e.response?.data?.message || "Failed", severity: "error" });
+    }
+  };
+
+  // Generate animated route via ORS
+  const generateRoute = async () => {
+    if (selected.length === 0) {
+      setSnack({ open: true, msg: "Select at least one farm", severity: "warning" });
+      return;
+    }
+    if (!myCoords) {
+      setSnack({ open: true, msg: "Set your location first", severity: "warning" });
+      return;
+    }
+    setRouteLoading(true);
+    setRoute(null);
+    setAnimatedSegments([]);
+    try {
+      const waypoints = [
+        myCoords,
+        ...selected.filter(r => r.coordinates?.lat).map(r => [r.coordinates.lat, r.coordinates.lng]),
+        myCoords // return
+      ];
+      const res = await api.post("/routing/drive", { waypoints });
+      setRoute(res.data);
+      animateRoute(res.data.segments);
+    } catch (e) {
+      setSnack({ open: true, msg: "Routing failed: " + (e.response?.data?.message || e.message), severity: "error" });
+    } finally { setRouteLoading(false); }
+  };
+
+  const animateRoute = (segments) => {
+    setAnimating(true);
+    setAnimatedSegments([]);
+    let idx = 0;
+    const next = () => {
+      if (idx >= segments.length) { setAnimating(false); return; }
+      setAnimatedSegments(prev => [...prev, segments[idx]]);
+      idx++;
+      animRef.current = setTimeout(next, 800);
+    };
+    next();
+  };
+
+  const resetRoute = () => {
+    clearTimeout(animRef.current);
+    setRoute(null);
+    setAnimatedSegments([]);
+    setAnimating(false);
+    setSelectedIds([]);
+  };
+
+  // Map center
+  const mapCenter = myCoords || (farmerRequests[0]?.coordinates?.lat
+    ? [farmerRequests[0].coordinates.lat, farmerRequests[0].coordinates.lng]
+    : [30.9, 75.8]);
+
+  // All marker positions for fitBounds
+  const allPoints = [
+    ...(myCoords ? [myCoords] : []),
+    ...farmerRequests.filter(r => r.coordinates?.lat).map(r => [r.coordinates.lat, r.coordinates.lng]),
+    ...demands.filter(d => d.location?.lat).map(d => [d.location.lat, d.location.lng]),
+  ];
 
   const handleSignOut = () => {
     logout();
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
     navigate("/", { replace: true });
   };
 
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "#f8f4ee", pb: 6 }}>
-      <Box sx={{ bgcolor: "#fff", borderBottom: "1px solid rgba(153,117,75,0.16)" }}>
+      {/* Navbar */}
+      <Box sx={{ bgcolor: "#fff", borderBottom: "1px solid rgba(153,117,75,0.16)", position: "sticky", top: 0, zIndex: 1000 }}>
         <Container maxWidth="xl">
-          <Stack direction={{ xs: "column", md: "row" }} justifyContent="space-between" alignItems={{ xs: "flex-start", md: "center" }} spacing={2} sx={{ py: 2.2 }}>
+          <Stack direction={{ xs: "column", md: "row" }} justifyContent="space-between" alignItems={{ xs: "flex-start", md: "center" }} spacing={2} sx={{ py: 2 }}>
             <Stack direction="row" spacing={2} alignItems="center">
-              <Avatar sx={{ width: 60, height: 60, bgcolor: "#fff4d5", color: "#c96a00", border: "1px solid #f4d375" }}>
+              <Avatar sx={{ width: 52, height: 52, bgcolor: "#fff4d5", color: "#c96a00", border: "1px solid #f4d375" }}>
                 <LocalShippingOutlinedIcon />
               </Avatar>
               <Box>
-                <Typography sx={{ color: "#d46700", fontWeight: 800, letterSpacing: "0.08em", fontSize: "0.9rem" }}>AGGREGATOR</Typography>
-                <Typography sx={{ fontSize: { xs: "1.8rem", md: "2.1rem" }, fontWeight: 800, color: "#17212b" }}>
-                  {session?.name || "Anvesh Jami"}
+                <Typography sx={{ color: "#d46700", fontWeight: 800, fontSize: "0.85rem", letterSpacing: "0.08em" }}>AGGREGATOR</Typography>
+                <Typography sx={{ fontSize: { xs: "1.5rem", md: "1.8rem" }, fontWeight: 800, color: "#17212b" }}>
+                  {session?.name || "Aggregator"}
                 </Typography>
               </Box>
             </Stack>
-            <Stack direction="row" spacing={2} alignItems="center">
+            <Stack direction="row" spacing={1.5} alignItems="center" flexWrap="wrap">
+              <LanguageSwitcher color="#7f6955" />
               <Stack direction="row" spacing={0.7} alignItems="center">
-                <LocationOnOutlinedIcon sx={{ color: "#8d7258", fontSize: 20 }} />
-                <Typography sx={{ color: "#7f6955" }}>{session?.profile?.operatingArea || "chapara"}</Typography>
+                <LocationOnOutlinedIcon sx={{ color: "#8d7258", fontSize: 18 }} />
+                <Typography sx={{ color: "#7f6955", fontSize: "0.9rem" }}>{session?.location || "Location"}</Typography>
               </Stack>
-              <Button
-                variant="outlined"
-                startIcon={<LogoutRoundedIcon />}
-                onClick={handleSignOut}
-                sx={{ borderRadius: 3, px: 2.4, py: 1.15, color: "#7f6955", borderColor: "#cddbd5", textTransform: "none", fontWeight: 700 }}
-              >
-                Sign Out
+              <IconButton sx={{ bgcolor: "#f8f4ee" }} onClick={() => setSnack({ open: true, msg: "Notifications cleared!", severity: "info" })}>
+                <Badge badgeContent={notifCount} color="error">
+                  <NotificationsIcon sx={{ color: "#7f6955" }} />
+                </Badge>
+              </IconButton>
+              <Button startIcon={<LogoutRoundedIcon />} onClick={handleSignOut} variant="outlined"
+                sx={{ borderRadius: 3, px: 2, py: 1, color: "#7f6955", borderColor: "#cddbd5", textTransform: "none", fontWeight: 700 }}>
+                {t("nav.logout")}
               </Button>
             </Stack>
           </Stack>
@@ -140,158 +309,361 @@ export default function AggregatorDashboard() {
       </Box>
 
       <Container maxWidth="xl" sx={{ pt: 4 }}>
+        {/* Stat cards */}
         <Grid container spacing={3} sx={{ mb: 4 }}>
-          <Grid size={{ xs: 12, md: 4 }}><StatCard icon={<AgricultureOutlinedIcon />} value={counts.available} label="AVAILABLE" bg="#fffaf0" border="#f7d56a" color="#c76600" /></Grid>
-          <Grid size={{ xs: 12, md: 4 }}><StatCard icon={<CalendarMonthOutlinedIcon />} value={counts.scheduled} label="SCHEDULED" bg="#f2f7ff" border="#b7d5ff" color="#3467f2" /></Grid>
-          <Grid size={{ xs: 12, md: 4 }}><StatCard icon={<Inventory2OutlinedIcon />} value={counts.collected} label="COLLECTED" bg="#f1fcf5" border="#b8f2c7" color="#1e9b53" /></Grid>
-        </Grid>
-
-        <Shell title="Farm Locations & Route Map" icon={<RouteOutlinedIcon />} mb={3}>
-          <Box sx={{ borderRadius: 6, overflow: "hidden", height: 520, position: "relative" }}>
-            <MapContainer center={base.coords} zoom={8} scrollWheelZoom={false} style={{ height: "100%", width: "100%" }}>
-              <TileLayer attribution='&copy; OpenStreetMap contributors' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-              {farms.map((farm) => (
-                <CircleMarker key={farm.id} center={farm.coords} radius={12} pathOptions={{ color: "#fff", weight: 3, fillColor: statusColor[farm.status], fillOpacity: 1 }}>
-                  <Tooltip>{farm.name}</Tooltip>
-                </CircleMarker>
-              ))}
-              <CircleMarker center={base.coords} radius={14} pathOptions={{ color: "#fff", weight: 3, fillColor: "#f59e0b", fillOpacity: 1 }} />
-              {route ? <Polyline positions={route.points.map((point) => point.coords)} pathOptions={{ color: "#3a7f66", weight: 4, dashArray: "12 8" }} /> : null}
-            </MapContainer>
-            <MapLegend />
-          </Box>
-        </Shell>
-
-        <Grid container spacing={3} sx={{ mb: 4 }}>
-          <Grid size={{ xs: 12, lg: 6 }}>
-            <Shell title="Route Optimization" icon={<TuneRoundedIcon />}>
-              <Typography sx={{ color: "#8a7058", lineHeight: 1.7, mb: 2.5 }}>Select farms from the list, then generate the optimal pickup tour using a nearest-neighbor + 2-opt VRP solver.</Typography>
-              <Grid container spacing={1.6} sx={{ mb: 2.5 }}>
-                {["Collecting farm", "Computing distance", "Nearest-neighbor heuristic", "2-opt local", "Finalising route"].map((label, i) => (
-                  <Grid key={label} size={{ xs: 12, sm: 6 }}>
-                    <Button fullWidth variant="text" startIcon={<TaskAltRoundedIcon />} sx={{ justifyContent: "flex-start", borderRadius: 999, bgcolor: i === 4 ? "#eef7f2" : "#f7f4ef", color: i === 4 ? "#2f7d5a" : "#b18b6a", textTransform: "none", py: 1.2 }}>
-                      {label}
-                    </Button>
-                  </Grid>
-                ))}
-              </Grid>
-              <Box sx={{ borderRadius: 4, bgcolor: "#f9f6f2", px: 3, py: 2.5, mb: 2.8 }}>
-                <Stack direction="row" justifyContent="space-between"><Typography sx={{ color: "#8a7058" }}>Selected farms</Typography><Typography sx={{ fontWeight: 800 }}>{selected.length}</Typography></Stack>
-                <Stack direction="row" justifyContent="space-between" sx={{ mt: 1.2 }}><Typography sx={{ color: "#8a7058" }}>Total biomass</Typography><Typography sx={{ fontWeight: 800 }}>{selectedBiomass.toFixed(1)} t</Typography></Stack>
-              </Box>
-              <Button fullWidth variant="contained" startIcon={<BoltRoundedIcon />} onClick={() => setRoute(selected.length ? planRoute(selected) : null)} sx={{ minHeight: 72, borderRadius: 999, textTransform: "none", fontWeight: 800, fontSize: "1.1rem", bgcolor: "#9fbeaf", boxShadow: "none" }}>Generate Best Pickup Route</Button>
-              <Typography sx={{ textAlign: "center", color: "#8a7058", mt: 2 }}>Select at least one farm from the list below</Typography>
-              {route ? (
-                <Box sx={{ mt: 3.2 }}>
-                  <Stack direction="row" spacing={1.6} alignItems="center" sx={{ mb: 2 }}>
-                    <Avatar sx={{ bgcolor: "#d7f8e3", color: "#14844d" }}><TaskAltRoundedIcon /></Avatar>
-                    <Box>
-                      <Typography sx={{ fontWeight: 800, fontSize: "1.8rem", color: "#17212b" }}>Route Optimised</Typography>
-                      <Typography sx={{ color: "#8a7058" }}>Nearest-neighbor + 2-opt - {selected.length} stops</Typography>
-                    </Box>
-                  </Stack>
-                  <Grid container spacing={2}>
-                    <Grid size={{ xs: 12, md: 4 }}><MetricBox icon={<RouteOutlinedIcon />} value={`${route.total.toFixed(1)} km`} label="Distance" bg="#edf4f2" color="#3b7b67" /></Grid>
-                    <Grid size={{ xs: 12, md: 4 }}><MetricBox icon={<AccessTimeRoundedIcon />} value={`${route.minutes} min`} label="Est. Time" bg="#fff3c8" color="#d17400" /></Grid>
-                    <Grid size={{ xs: 12, md: 4 }}><MetricBox icon={<LocalGasStationRoundedIcon />} value={`Rs ${route.fuel.toLocaleString()}`} label="Fuel Cost" bg="#dce9ff" color="#2f5be8" /></Grid>
-                  </Grid>
+          {[
+            { icon: <AgricultureOutlinedIcon />, value: counts.pending, label: "PENDING", bg: "#fffaf0", border: "#f7d56a", color: "#c76600" },
+            { icon: <EventAvailableRoundedIcon />, value: counts.accepted, label: "ACCEPTED", bg: "#f2f7ff", border: "#b7d5ff", color: "#3467f2" },
+            { icon: <TaskAltRoundedIcon />, value: counts.collected, label: "COLLECTED", bg: "#f1fcf5", border: "#b8f2c7", color: "#1e9b53" },
+          ].map(s => (
+            <Grid key={s.label} size={{ xs: 12, md: 4 }}>
+              <Box sx={{ borderRadius: 4, border: `1px solid ${s.border}`, bgcolor: s.bg, p: 3, display: "flex", alignItems: "center", gap: 2, boxShadow: "0 4px 16px rgba(0,0,0,0.06)" }}>
+                <Avatar sx={{ bgcolor: `${s.color}15`, color: s.color }}>{s.icon}</Avatar>
+                <Box>
+                  <Typography sx={{ fontSize: "2rem", fontWeight: 900, color: "#17212b" }}>{s.value}</Typography>
+                  <Typography sx={{ fontSize: "0.8rem", fontWeight: 700, color: s.color, letterSpacing: "0.06em" }}>{s.label}</Typography>
                 </Box>
-              ) : null}
-            </Shell>
-          </Grid>
-
-          <Grid size={{ xs: 12, lg: 6 }}>
-            <Shell title="Truck Capacity" icon={<ScaleOutlinedIcon />} sx={{ height: "100%" }}>
-              <Typography sx={{ fontWeight: 800, color: "#2b2018", mb: 1.2 }}>Load Capacity (tons)</Typography>
-              <Box sx={{ minHeight: 86, borderRadius: 4, border: "1px solid #e4d7c7", bgcolor: "#fff", display: "flex", alignItems: "center", px: 3, fontSize: "2rem", fontWeight: 800 }}>{capacity}<Box component="span" sx={{ ml: "auto", fontSize: "1rem", color: "#7d6755", fontWeight: 700 }}>tons</Box></Box>
-              <Typography sx={{ mt: 3, mb: 1.4, color: "#8a7058", fontWeight: 800, letterSpacing: "0.05em" }}>QUICK SELECT</Typography>
-              <Stack direction="row" spacing={1.5} flexWrap="wrap" useFlexGap sx={{ mb: 3 }}>
-                {[5, 10, 20, 30].map((value) => (
-                  <Button key={value} variant={capacity === value ? "contained" : "outlined"} onClick={() => setCapacity(value)} sx={{ minWidth: 120, minHeight: 64, borderRadius: 4, textTransform: "none", fontWeight: 800, fontSize: "1.1rem", borderColor: "#d9cfbf", color: capacity === value ? "#2f7d5a" : "#2b2018", bgcolor: capacity === value ? "#eef7f2" : "#fff", boxShadow: "none" }}>{value}t</Button>
-                ))}
-              </Stack>
-              <Stack direction="row" justifyContent="space-between" sx={{ mb: 1 }}><Typography sx={{ color: "#7d6755", fontWeight: 700 }}>Load from selected farms</Typography><Typography sx={{ color: "#02a54a", fontWeight: 800 }}>{selectedBiomass.toFixed(1)} / {capacity} t</Typography></Stack>
-              <LinearProgress variant="determinate" value={Math.min((selectedBiomass / capacity) * 100, 100)} sx={{ height: 16, borderRadius: 999, bgcolor: "#ece7de", "& .MuiLinearProgress-bar": { borderRadius: 999, bgcolor: "#08c243" } }} />
-              <Typography sx={{ mt: 1.4, color: "#8a7058" }}>Remaining: {(capacity - selectedBiomass).toFixed(1)} t</Typography>
-              <Grid container spacing={2} sx={{ mt: 2.2 }}>
-                <Grid size={{ xs: 12, md: 6 }}><SmallSummary value={selectedBiomass > 0 ? Math.ceil(selectedBiomass / capacity) : 0} label="Trips needed" /></Grid>
-                <Grid size={{ xs: 12, md: 6 }}><SmallSummary value={`Rs ${Math.round(selectedBiomass * 2350).toLocaleString()}`} label="Est. revenue" /></Grid>
-              </Grid>
-            </Shell>
-          </Grid>
+              </Box>
+            </Grid>
+          ))}
         </Grid>
 
-        <Shell
-          title="Available Farms"
-          icon={<AgricultureOutlinedIcon />}
-          right={
-            <Stack direction="row" spacing={1.2} alignItems="center" flexWrap="wrap" useFlexGap>
-              <IconButton sx={{ color: "#8b6f59" }}><TuneRoundedIcon /></IconButton>
-              {filters.map((filter) => (
-                <Button key={filter} onClick={() => setActiveFilter(filter)} variant={activeFilter === filter ? "contained" : "outlined"} sx={{ borderRadius: 999, minWidth: 92, textTransform: "none", fontWeight: 700, boxShadow: "none", bgcolor: activeFilter === filter ? "#2f7d5a" : "#fff", color: activeFilter === filter ? "#fff" : "#8b6f59", borderColor: "#dbcdbb" }}>{filter[0].toUpperCase() + filter.slice(1)}</Button>
+        {/* My Location button */}
+        <Box sx={{ mb: 3, display: "flex", gap: 2, flexWrap: "wrap" }}>
+          <Button variant="contained" startIcon={<MyLocationIcon />} onClick={getMyLocation}
+            sx={{ borderRadius: "20px", textTransform: "none", fontWeight: 700, bgcolor: myCoords ? "#2e7d32" : "#f59e0b", "&:hover": { bgcolor: myCoords ? "#1b5e20" : "#d97706" } }}>
+            {myCoords ? "📍 Location Set" : t("aggregator.myLocation")}
+          </Button>
+          <Button variant="outlined" startIcon={<RestartAltIcon />} onClick={fetchData}
+            sx={{ borderRadius: "20px", textTransform: "none", fontWeight: 700, borderColor: "#9fbeaf", color: "#2f7d5a" }}>
+            {t("common.refresh")}
+          </Button>
+        </Box>
+
+        {/* Map */}
+        <Box sx={{ borderRadius: 6, overflow: "hidden", height: 500, position: "relative", mb: 4, boxShadow: "0 12px 40px rgba(0,0,0,0.1)" }}>
+          <MapContainer center={mapCenter} zoom={7} scrollWheelZoom style={{ height: "100%", width: "100%", zIndex: 0 }}>
+            <TileLayer attribution="© OpenStreetMap" url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+            {allPoints.length > 1 && <MapBounds points={allPoints} />}
+
+            {/* My location */}
+            {myCoords && (
+              <CircleMarker center={myCoords} radius={16}
+                pathOptions={{ color: "#fff", weight: 3, fillColor: "#f59e0b", fillOpacity: 1 }}
+                eventHandlers={{ click: () => window.open(`https://www.google.com/maps?q=${myCoords[0]},${myCoords[1]}`, "_blank") }}>
+                <Tooltip permanent>You</Tooltip>
+              </CircleMarker>
+            )}
+
+            {/* Farmer markers */}
+            {farmerRequests.filter(r => r.coordinates?.lat).map(r => (
+              <CircleMarker key={r._id} center={[r.coordinates.lat, r.coordinates.lng]} radius={12}
+                pathOptions={{ color: selectedIds.includes(r._id) ? "#fff" : "#ccc", weight: selectedIds.includes(r._id) ? 4 : 2, fillColor: statusColor[r.status] || "#f59e0b", fillOpacity: 1 }}
+                eventHandlers={{
+                  click: () => {
+                    const url = `https://www.google.com/maps?q=${r.coordinates.lat},${r.coordinates.lng}`;
+                    window.open(url, "_blank");
+                  }
+                }}>
+                <Tooltip>{r.farmerName} — {r.farmBiomassQuantity}t {r.cropType}</Tooltip>
+              </CircleMarker>
+            ))}
+
+            {/* Industry markers */}
+            {demands.filter(d => d.location?.lat).map(d => (
+              <CircleMarker key={d._id} center={[d.location.lat, d.location.lng]} radius={13}
+                pathOptions={{ color: "#fff", weight: 3, fillColor: "#4da6ff", fillOpacity: 1 }}
+                eventHandlers={{
+                  click: () => window.open(`https://www.google.com/maps?q=${d.location.lat},${d.location.lng}`, "_blank")
+                }}>
+                <Tooltip>{d.companyName} — needs {d.quantityNeeded}t {d.cropType}</Tooltip>
+              </CircleMarker>
+            ))}
+
+            {/* Animated route segments */}
+            {animatedSegments.map((seg, i) => (
+              <Polyline key={i} positions={seg}
+                pathOptions={{ color: "#3a7f66", weight: 5, dashArray: "12 6", opacity: 0.9 }} />
+            ))}
+          </MapContainer>
+          <MapLegend t={t} />
+          <Box sx={{ position: "absolute", top: 16, right: 16, zIndex: 999 }}>
+            <Typography variant="caption" sx={{ bgcolor: "rgba(255,255,255,0.9)", px: 1.5, py: 0.6, borderRadius: "20px", boxShadow: "0 4px 12px rgba(0,0,0,0.1)", fontWeight: 600 }}>
+              🖱️ {t("map.clickForMaps")}
+            </Typography>
+          </Box>
+        </Box>
+
+        {/* Tabs: Farmer Requests | Industry Demands | Route */}
+        <Box sx={{ mb: 3, bgcolor: "#fff", borderRadius: 4, p: 0.5, boxShadow: "0 4px 16px rgba(0,0,0,0.06)" }}>
+          <Tabs value={activeTab} onChange={(_, v) => setActiveTab(v)} variant="fullWidth"
+            sx={{ "& .MuiTab-root": { textTransform: "none", fontWeight: 700, borderRadius: 3 }, "& .Mui-selected": { bgcolor: "#eef7f2" } }}>
+            <Tab label={`🌾 ${t("aggregator.farmerRequests")} (${farmerRequests.length})`} />
+            <Tab label={`🏭 ${t("aggregator.industryDemands")} (${demands.length})`} />
+            <Tab label={`🗺️ ${t("aggregator.routeOptimization")}`} />
+          </Tabs>
+        </Box>
+
+        {/* === FARMER REQUESTS TAB === */}
+        {activeTab === 0 && (
+          <Box>
+            {/* Filter buttons */}
+            <Stack direction="row" spacing={1} mb={3} flexWrap="wrap" useFlexGap>
+              {["all","pending","accepted","collected"].map(f => (
+                <Button key={f} onClick={() => setActiveFilter(f)} variant={activeFilter === f ? "contained" : "outlined"}
+                  sx={{ borderRadius: 20, textTransform: "none", fontWeight: 700, boxShadow: "none", bgcolor: activeFilter === f ? "#2f7d5a" : "#fff", color: activeFilter === f ? "#fff" : "#8b6f59", borderColor: "#dbcdbb" }}>
+                  {f.charAt(0).toUpperCase() + f.slice(1)}
+                </Button>
               ))}
             </Stack>
-          }
-        >
-          <Box sx={{ mb: 3, borderRadius: 4, bgcolor: "#f7f4ef", px: 2.5, py: 2 }}>
-            <Stack direction="row" spacing={1.2} alignItems="center"><TuneRoundedIcon sx={{ color: "#8b6f59" }} /><Typography sx={{ color: "#8b6f59" }}>Tap a farm card to select it for route planning - distances are calculated using the Haversine formula</Typography></Stack>
-          </Box>
-          <Grid container spacing={2.6}>
-            {filtered.map((farm) => (
-              <Grid key={farm.id} size={{ xs: 12, md: 6, xl: 4 }}>
-                <FarmCard
-                  farm={farm}
-                  distance={distanceKm(base.coords, farm.coords)}
-                  selected={selectedIds.includes(farm.id)}
-                  onToggle={() => toggleFarm(farm)}
-                  onSchedule={() => {
-                    setModalFarm(farm);
-                    setPickup({ date: "", time: "08:00" });
-                  }}
-                />
+
+            {loading ? (
+              <Box textAlign="center" py={6}><CircularProgress sx={{ color: "#2f7d5a" }} /></Box>
+            ) : filtered.length === 0 ? (
+              <Alert severity="info" sx={{ borderRadius: 3 }}>{t("aggregator.noRequests")}</Alert>
+            ) : (
+              <Grid container spacing={2.5}>
+                {filtered.map(req => (
+                  <Grid key={req._id} size={{ xs: 12, md: 6, xl: 4 }}>
+                    <Card sx={{ borderRadius: 4, boxShadow: "0 4px 20px rgba(0,0,0,0.08)", border: selectedIds.includes(req._id) ? "2px solid #2f7d5a" : "2px solid transparent", cursor: "pointer", transition: "all 0.2s", "&:hover": { boxShadow: "0 8px 32px rgba(0,0,0,0.12)", transform: "translateY(-2px)" } }}
+                      onClick={() => toggleFarm(req)}>
+                      <CardContent sx={{ p: 2.5 }}>
+                        <Stack direction="row" justifyContent="space-between" alignItems="flex-start" mb={1}>
+                          <Box>
+                            <Typography fontWeight="800" fontSize="1rem">{req.farmerName}</Typography>
+                            <Typography variant="body2" color="text.secondary">📍 {req.address?.substring(0, 40)}...</Typography>
+                          </Box>
+                          <Chip label={req.status} size="small"
+                            sx={{ bgcolor: `${statusColor[req.status]}20`, color: statusColor[req.status], fontWeight: 700, borderRadius: "10px", fontSize: "0.7rem" }} />
+                        </Stack>
+                        <Divider sx={{ my: 1 }} />
+                        <Grid container spacing={1}>
+                          <Grid size={6}>
+                            <Typography variant="caption" color="text.secondary">Crop</Typography>
+                            <Typography fontWeight="700" fontSize="0.9rem">🌾 {req.cropType}</Typography>
+                          </Grid>
+                          <Grid size={6}>
+                            <Typography variant="caption" color="text.secondary">Biomass</Typography>
+                            <Typography fontWeight="700" fontSize="0.9rem">⚖️ {req.biomassQuantity}t</Typography>
+                          </Grid>
+                          <Grid size={6}>
+                            <Typography variant="caption" color="text.secondary">Price</Typography>
+                            <Typography fontWeight="700" fontSize="0.9rem">💰 ₹{req.priceExpectation}/t</Typography>
+                          </Grid>
+                          <Grid size={6}>
+                            <Typography variant="caption" color="text.secondary">Distance</Typography>
+                            <Typography fontWeight="700" fontSize="0.9rem">🚗 {req.distanceKm ? `${req.distanceKm} km` : "—"}</Typography>
+                          </Grid>
+                        </Grid>
+                        {req.qualityNotes && (
+                          <Box sx={{ mt: 1, p: 1, bgcolor: "#f9f6f2", borderRadius: 2 }}>
+                            <Typography variant="caption" color="text.secondary">📝 {req.qualityNotes}</Typography>
+                          </Box>
+                        )}
+                        {req.cropPhotoUrl && (
+                          <Box component="img" src={`http://localhost:5000${req.cropPhotoUrl}`} alt="crop"
+                            sx={{ width: "100%", height: 80, objectFit: "cover", borderRadius: 2, mt: 1 }} />
+                        )}
+                        <Stack direction="row" spacing={1} mt={1.5}>
+                          {req.status === "pending" && (
+                            <Button fullWidth size="small" variant="contained" onClick={e => { e.stopPropagation(); setModalFarm(req); setPickup({ date: "", time: "08:00" }); }}
+                              sx={{ borderRadius: 2, textTransform: "none", fontWeight: 700, bgcolor: "#2f7d5a", boxShadow: "none" }}>
+                              {t("aggregator.acceptRequest")}
+                            </Button>
+                          )}
+                          {req.status === "accepted" && req.assignedAggregatorId === session?.id && (
+                            <Button fullWidth size="small" variant="outlined" onClick={e => { e.stopPropagation(); markCollected(req._id); }}
+                              sx={{ borderRadius: 2, textTransform: "none", fontWeight: 700, borderColor: "#22c55e", color: "#22c55e" }}>
+                              {t("aggregator.markCollected")}
+                            </Button>
+                          )}
+                          <Button size="small" onClick={e => { e.stopPropagation(); window.open(`https://www.google.com/maps?q=${req.coordinates?.lat},${req.coordinates?.lng}`, "_blank"); }}
+                            sx={{ borderRadius: 2, textTransform: "none", fontSize: "0.75rem", color: "#1a73e8", fontWeight: 700 }}>
+                            🗺️ Maps
+                          </Button>
+                        </Stack>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                ))}
               </Grid>
-            ))}
+            )}
+          </Box>
+        )}
+
+        {/* === INDUSTRY DEMANDS TAB === */}
+        {activeTab === 1 && (
+          <Box>
+            {loading ? (
+              <Box textAlign="center" py={6}><CircularProgress sx={{ color: "#4da6ff" }} /></Box>
+            ) : demands.length === 0 ? (
+              <Alert severity="info" sx={{ borderRadius: 3 }}>{t("aggregator.noDemands")}</Alert>
+            ) : (
+              <Grid container spacing={2.5}>
+                {demands.map(d => (
+                  <Grid key={d._id} size={{ xs: 12, md: 6, xl: 4 }}>
+                    <Card sx={{ borderRadius: 4, boxShadow: "0 4px 20px rgba(0,0,0,0.08)", border: "1px solid #e8f4ff", transition: "all 0.2s", "&:hover": { boxShadow: "0 8px 32px rgba(77,166,255,0.15)", transform: "translateY(-2px)" } }}>
+                      <CardContent sx={{ p: 2.5 }}>
+                        <Stack direction="row" justifyContent="space-between" alignItems="flex-start" mb={1.5}>
+                          <Box display="flex" alignItems="center" gap={1}>
+                            <Avatar sx={{ bgcolor: "#e8f4ff", color: "#4da6ff", width: 38, height: 38 }}><FactoryIcon fontSize="small" /></Avatar>
+                            <Box>
+                              <Typography fontWeight="800">{d.companyName}</Typography>
+                              <Typography variant="caption" color="text.secondary">{d.industryName}</Typography>
+                            </Box>
+                          </Box>
+                          <Chip label={d.status} size="small"
+                            sx={{ bgcolor: `${demandStatusColor[d.status]}20`, color: demandStatusColor[d.status], fontWeight: 700, borderRadius: "10px", fontSize: "0.7rem" }} />
+                        </Stack>
+                        <Divider sx={{ mb: 1.5 }} />
+                        <Grid container spacing={1}>
+                          <Grid size={6}><Typography variant="caption" color="text.secondary">Crop Needed</Typography><Typography fontWeight="700">🌾 {d.cropType}</Typography></Grid>
+                          <Grid size={6}><Typography variant="caption" color="text.secondary">Quantity</Typography><Typography fontWeight="700">⚖️ {d.quantityNeeded}t</Typography></Grid>
+                          <Grid size={6}><Typography variant="caption" color="text.secondary">Price Offered</Typography><Typography fontWeight="700" color="#22c55e">₹{d.priceOffered}/t</Typography></Grid>
+                          <Grid size={6}><Typography variant="caption" color="text.secondary">Deadline</Typography><Typography fontWeight="700">📅 {new Date(d.deadline).toLocaleDateString()}</Typography></Grid>
+                        </Grid>
+                        <Box sx={{ mt: 1.5, p: 1.5, bgcolor: "#f8fcff", borderRadius: 2 }}>
+                          <Typography variant="body2" color="text.secondary">📍 {d.location?.address}</Typography>
+                        </Box>
+                        {d.description && <Typography variant="caption" color="text.secondary" mt={0.5} display="block">{d.description}</Typography>}
+                        <Stack direction="row" spacing={1} mt={2}>
+                          {d.status === "open" && (
+                            <Button fullWidth size="small" variant="contained" onClick={() => acceptDemand(d._id)}
+                              sx={{ borderRadius: 2, textTransform: "none", fontWeight: 700, bgcolor: "#4da6ff", boxShadow: "none", "&:hover": { bgcolor: "#1a73e8" } }}>
+                              {t("aggregator.acceptRequest")} Demand
+                            </Button>
+                          )}
+                          {d.location?.lat && (
+                            <Button size="small" onClick={() => window.open(`https://www.google.com/maps?q=${d.location.lat},${d.location.lng}`, "_blank")}
+                              sx={{ borderRadius: 2, textTransform: "none", fontSize: "0.75rem", color: "#1a73e8", fontWeight: 700 }}>
+                              🗺️ Maps
+                            </Button>
+                          )}
+                        </Stack>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                ))}
+              </Grid>
+            )}
+          </Box>
+        )}
+
+        {/* === ROUTE OPTIMIZATION TAB === */}
+        {activeTab === 2 && (
+          <Grid container spacing={3}>
+            <Grid size={{ xs: 12, lg: 6 }}>
+              <Box sx={{ borderRadius: 4, bgcolor: "#fff", p: 3, boxShadow: "0 4px 16px rgba(0,0,0,0.06)" }}>
+                <Typography variant="h6" fontWeight="800" mb={1}>{t("aggregator.routeOptimization")}</Typography>
+                <Typography variant="body2" color="text.secondary" mb={2.5}>
+                  Select farms from the Farmer Requests tab, then click Generate to get the animated road route.
+                </Typography>
+
+                <Box sx={{ bgcolor: "#f9f6f2", borderRadius: 3, p: 2.5, mb: 2.5 }}>
+                  <Stack direction="row" justifyContent="space-between" mb={1}><Typography color="#8a7058">Selected farms</Typography><Typography fontWeight="800">{selected.length}</Typography></Stack>
+                  <Stack direction="row" justifyContent="space-between"><Typography color="#8a7058">Total biomass</Typography><Typography fontWeight="800">{selectedBiomass.toFixed(1)} t</Typography></Stack>
+                </Box>
+
+                <Stack direction="row" spacing={2} mb={2.5}>
+                  <Button fullWidth variant="contained"
+                    startIcon={routeLoading ? <CircularProgress size={18} color="inherit" /> : animating ? <RouteOutlinedIcon /> : <BoltRoundedIcon />}
+                    onClick={generateRoute} disabled={routeLoading || animating}
+                    sx={{ minHeight: 64, borderRadius: 4, textTransform: "none", fontWeight: 800, fontSize: "1rem", bgcolor: "#9fbeaf", boxShadow: "none" }}>
+                    {routeLoading ? "Getting route..." : animating ? t("aggregator.animating") : t("aggregator.generateRoute")}
+                  </Button>
+                  <Button variant="outlined" startIcon={<RestartAltIcon />} onClick={resetRoute}
+                    sx={{ minHeight: 64, borderRadius: 4, textTransform: "none", fontWeight: 700, borderColor: "#d9cfbf", color: "#8a7058" }}>
+                    {t("aggregator.resetRoute")}
+                  </Button>
+                </Stack>
+
+                {route && (
+                  <Box>
+                    <Stack direction="row" spacing={1.5} alignItems="center" mb={2}>
+                      <Avatar sx={{ bgcolor: "#d7f8e3", color: "#14844d" }}><TaskAltRoundedIcon /></Avatar>
+                      <Box>
+                        <Typography fontWeight="800" fontSize="1.4rem">Route Optimised</Typography>
+                        <Typography color="#8a7058">{selected.length} stops — road network route</Typography>
+                      </Box>
+                    </Stack>
+                    <Grid container spacing={2}>
+                      <Grid size={4}><Box sx={{ p: 2, borderRadius: 3, bgcolor: "#edf4f2", textAlign: "center" }}><RouteOutlinedIcon sx={{ color: "#3b7b67" }} /><Typography fontWeight="800">{route.distanceKm} km</Typography><Typography variant="caption" color="text.secondary">Distance</Typography></Box></Grid>
+                      <Grid size={4}><Box sx={{ p: 2, borderRadius: 3, bgcolor: "#fff3c8", textAlign: "center" }}><AccessTimeRoundedIcon sx={{ color: "#d17400" }} /><Typography fontWeight="800">{route.durationMin} min</Typography><Typography variant="caption" color="text.secondary">Est. Time</Typography></Box></Grid>
+                      <Grid size={4}><Box sx={{ p: 2, borderRadius: 3, bgcolor: "#dce9ff", textAlign: "center" }}><LocalGasStationRoundedIcon sx={{ color: "#2f5be8" }} /><Typography fontWeight="800">₹{Math.round(Number(route.distanceKm) * 11.5).toLocaleString()}</Typography><Typography variant="caption" color="text.secondary">Fuel Est.</Typography></Box></Grid>
+                    </Grid>
+                  </Box>
+                )}
+              </Box>
+            </Grid>
+
+            <Grid size={{ xs: 12, lg: 6 }}>
+              <Box sx={{ borderRadius: 4, bgcolor: "#fff", p: 3, boxShadow: "0 4px 16px rgba(0,0,0,0.06)" }}>
+                <Typography variant="h6" fontWeight="800" mb={2}><ScaleOutlinedIcon sx={{ mb: -0.5, mr: 1 }} />Truck Capacity</Typography>
+                <Box sx={{ display: "flex", alignItems: "center", px: 3, py: 2, borderRadius: 3, border: "1px solid #e4d7c7", mb: 2, fontSize: "2rem", fontWeight: 800 }}>
+                  {capacity}<Box component="span" sx={{ ml: "auto", fontSize: "1rem", color: "#7d6755" }}>tons</Box>
+                </Box>
+                <Stack direction="row" spacing={1.5} flexWrap="wrap" useFlexGap mb={3}>
+                  {[5, 10, 20, 30].map(v => (
+                    <Button key={v} variant={capacity === v ? "contained" : "outlined"} onClick={() => setCapacity(v)}
+                      sx={{ minWidth: 100, minHeight: 56, borderRadius: 3, textTransform: "none", fontWeight: 800, fontSize: "1rem", borderColor: "#d9cfbf", color: capacity === v ? "#2f7d5a" : "#2b2018", bgcolor: capacity === v ? "#eef7f2" : "#fff", boxShadow: "none" }}>
+                      {v}t
+                    </Button>
+                  ))}
+                </Stack>
+                <Stack direction="row" justifyContent="space-between" mb={0.8}>
+                  <Typography color="#7d6755" fontWeight="700">Load from selected</Typography>
+                  <Typography color="#02a54a" fontWeight="800">{selectedBiomass.toFixed(1)} / {capacity} t</Typography>
+                </Stack>
+                <LinearProgress value={Math.min((selectedBiomass/capacity)*100,100)} variant="determinate"
+                  sx={{ height: 14, borderRadius: 999, bgcolor: "#ece7de", "& .MuiLinearProgress-bar": { borderRadius: 999, bgcolor: "#08c243" } }} />
+                <Typography mt={1} color="#8a7058">Remaining: {(capacity-selectedBiomass).toFixed(1)} t</Typography>
+              </Box>
+            </Grid>
           </Grid>
-        </Shell>
+        )}
       </Container>
 
-      <Dialog open={Boolean(modalFarm)} onClose={() => setModalFarm(null)} maxWidth="sm" fullWidth PaperProps={{ sx: { borderRadius: 6, p: 0.5, bgcolor: "#fffdfb" } }}>
+      {/* Accept modal */}
+      <Dialog open={Boolean(modalFarm)} onClose={() => setModalFarm(null)} maxWidth="sm" fullWidth
+        PaperProps={{ sx: { borderRadius: 6, bgcolor: "#fffdfb" } }}>
         <DialogContent sx={{ p: 3.5 }}>
-          {modalFarm ? (
+          {modalFarm && (
             <>
-              <Stack direction="row" justifyContent="space-between" alignItems="flex-start" sx={{ mb: 2.5 }}>
+              <Stack direction="row" justifyContent="space-between" alignItems="flex-start" mb={2.5}>
                 <Stack direction="row" spacing={2} alignItems="center">
-                  <Avatar sx={{ width: 60, height: 60, bgcolor: "#edf4f0", color: "#3a7f66" }}><EventAvailableRoundedIcon /></Avatar>
+                  <Avatar sx={{ width: 52, height: 52, bgcolor: "#edf4f0", color: "#3a7f66" }}><EventAvailableRoundedIcon /></Avatar>
                   <Box>
-                    <Typography sx={{ fontWeight: 800, color: "#2b2018", fontSize: "2rem" }}>Schedule Pickup</Typography>
-                    <Typography sx={{ color: "#8a7058", fontSize: "1.1rem" }}>{modalFarm.name} - {modalFarm.place}</Typography>
+                    <Typography fontWeight="800" fontSize="1.6rem">{t("aggregator.schedulePickup")}</Typography>
+                    <Typography color="#8a7058">{modalFarm.farmerName} — {modalFarm.address?.substring(0,35)}...</Typography>
                   </Box>
                 </Stack>
                 <IconButton onClick={() => setModalFarm(null)}><CloseRoundedIcon /></IconButton>
               </Stack>
-              <Box sx={{ borderRadius: 4, bgcolor: "#f7f4ef", px: 3, py: 2.2, mb: 3 }}>
-                <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
-                  <Typography sx={{ color: "#8a7058" }}>Crop: <Box component="span" sx={{ color: "#2b2018", fontWeight: 800 }}>{modalFarm.crop} Stubble</Box></Typography>
-                  <Typography sx={{ color: "#8a7058" }}>Amount: <Box component="span" sx={{ color: "#2b2018", fontWeight: 800 }}>{modalFarm.biomass}t</Box></Typography>
-                  <Typography sx={{ color: "#8a7058" }}>Distance: <Box component="span" sx={{ color: "#2b2018", fontWeight: 800 }}>{distanceKm(base.coords, modalFarm.coords).toFixed(0)} km</Box></Typography>
+              <Box sx={{ bgcolor: "#f7f4ef", borderRadius: 3, p: 2.5, mb: 3 }}>
+                <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+                  <Typography color="#8a7058">Crop: <Box component="span" fontWeight="800">{modalFarm.cropType}</Box></Typography>
+                  <Typography color="#8a7058">Amount: <Box component="span" fontWeight="800">{modalFarm.biomassQuantity}t</Box></Typography>
+                  <Typography color="#8a7058">Price: <Box component="span" fontWeight="800">₹{modalFarm.priceExpectation}/t</Box></Typography>
                 </Stack>
               </Box>
-              <Typography sx={{ fontWeight: 800, color: "#3b3028", mb: 1.2 }}>Pickup Date</Typography>
-              <TextField fullWidth type="date" value={pickup.date} onChange={(e) => setPickup((c) => ({ ...c, date: e.target.value }))} sx={{ mb: 3, "& .MuiOutlinedInput-root": { borderRadius: 4, bgcolor: "#fff" } }} />
-              <Typography sx={{ fontWeight: 800, color: "#3b3028", mb: 1.2 }}>Preferred Time</Typography>
-              <Stack direction="row" spacing={1.5} flexWrap="wrap" useFlexGap sx={{ mb: 3 }}>
-                {["08:00", "10:00", "14:00", "16:00"].map((time) => (
-                  <Button key={time} variant={pickup.time === time ? "contained" : "outlined"} onClick={() => setPickup((c) => ({ ...c, time }))} sx={{ minWidth: 140, minHeight: 64, borderRadius: 4, textTransform: "none", fontWeight: 700, boxShadow: "none", bgcolor: pickup.time === time ? "#eef7f2" : "#fff", color: pickup.time === time ? "#2f7d5a" : "#3b3028", borderColor: "#dacdbf" }}>{time}</Button>
-                ))}
-              </Stack>
               <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
-                <Button fullWidth variant="outlined" onClick={() => setModalFarm(null)} sx={{ minHeight: 64, borderRadius: 4, textTransform: "none", fontWeight: 700, color: "#3a7f66", borderColor: "#cfe0d8" }}>Cancel</Button>
-                <Button fullWidth variant="contained" disabled={!pickup.date} onClick={confirmSchedule} sx={{ minHeight: 64, borderRadius: 4, textTransform: "none", fontWeight: 800, bgcolor: "#9fbeaf", boxShadow: "none" }}>Confirm Pickup</Button>
+                <Button fullWidth variant="outlined" onClick={() => setModalFarm(null)}
+                  sx={{ minHeight: 56, borderRadius: 3, textTransform: "none", fontWeight: 700, color: "#3a7f66", borderColor: "#cfe0d8" }}>
+                  {t("common.cancel")}
+                </Button>
+                <Button fullWidth variant="contained" onClick={() => acceptRequest(modalFarm._id)}
+                  sx={{ minHeight: 56, borderRadius: 3, textTransform: "none", fontWeight: 800, bgcolor: "#9fbeaf", boxShadow: "none" }}>
+                  {t("aggregator.acceptRequest")}
+                </Button>
               </Stack>
             </>
-          ) : null}
+          )}
         </DialogContent>
       </Dialog>
+
+      <Snackbar open={snack.open} autoHideDuration={3500} onClose={() => setSnack(s => ({ ...s, open: false }))} anchorOrigin={{ vertical: "bottom", horizontal: "center" }}>
+        <Alert severity={snack.severity} sx={{ borderRadius: 3 }}>{snack.msg}</Alert>
+      </Snackbar>
     </Box>
   );
 }

@@ -1,0 +1,123 @@
+{
+  "appName": "AgriCycle",
+  "tagline": "टिकाऊ कृषि मंच",
+  "common": {
+    "save": "सहेजें", "cancel": "रद्द करें", "edit": "संपादित करें", "delete": "हटाएं",
+    "close": "बंद करें", "submit": "जमा करें", "loading": "लोड हो रहा है...", "error": "त्रुटि",
+    "success": "सफल", "yes": "हाँ", "no": "नहीं", "confirm": "पुष्टि करें",
+    "back": "वापस", "next": "आगे", "search": "खोजें", "filter": "फ़िल्टर",
+    "all": "सभी", "view": "विवरण देखें", "accept": "स्वीकार करें", "reject": "अस्वीकार करें",
+    "upload": "अपलोड", "change": "बदलें", "remove": "हटाएं", "refresh": "रीफ्रेश",
+    "clear": "साफ़ करें", "reset": "रीसेट", "generate": "बनाएं", "download": "डाउनलोड"
+  },
+  "nav": {
+    "dashboard": "डैशबोर्ड", "profile": "प्रोफ़ाइल", "logout": "साइन आउट",
+    "notifications": "सूचनाएं", "language": "भाषा", "credits": "क्रेडिट",
+    "marketplace": "बाज़ार", "analytics": "विश्लेषण", "requests": "अनुरोध",
+    "demands": "मांगें", "overview": "अवलोकन", "map": "नक्शा", "route": "मार्ग"
+  },
+  "auth": {
+    "join": "AgriCycle से जुड़ें", "subtitle": "अपना खाता बनाएं और प्रभाव डालना शुरू करें।",
+    "signInTitle": "वापस स्वागत है", "signInSubtitle": "अपने AgriCycle खाते में साइन इन करें।",
+    "fullName": "पूरा नाम", "namePlaceholder": "जैसे रवि कुमार",
+    "phone": "फ़ोन नंबर", "phonePlaceholder": "जैसे 9876543210",
+    "location": "स्थान / गाँव / शहर", "locationPlaceholder": "जैसे अमृतसर, पंजाब",
+    "password": "पासवर्ड", "passwordPlaceholder": "न्यूनतम 6 अक्षर",
+    "selectRole": "अपनी भूमिका चुनें", "createAccount": "खाता बनाएं",
+    "alreadyHave": "पहले से खाता है?", "signIn": "साइन इन",
+    "noAccount": "खाता नहीं है?", "signUp": "साइन अप",
+    "farmer": "किसान", "aggregator": "संग्रहकर्ता", "industry": "उद्योग",
+    "completeProfile": "प्रोफ़ाइल पूरी करें", "profileSubtitle": "बस कुछ और जानकारी।"
+  },
+  "profile": {
+    "title": "मेरी प्रोफ़ाइल", "editProfile": "प्रोफ़ाइल संपादित करें", "saveProfile": "प्रोफ़ाइल सहेजें",
+    "uploadPhoto": "फ़ोटो अपलोड करें", "changePhoto": "फ़ोटो बदलें",
+    "name": "पूरा नाम", "phone": "फ़ोन नंबर", "gender": "लिंग",
+    "location": "स्थान", "pincode": "पिनकोड", "coordinates": "GPS निर्देशांक",
+    "male": "पुरुष", "female": "महिला", "other": "अन्य",
+    "landSize": "भूमि का आकार (एकड़)", "operatingArea": "संचालन क्षेत्र",
+    "storageCapacity": "भंडारण क्षमता (टन)", "vehicleType": "वाहन का प्रकार",
+    "experience": "अनुभव", "companyName": "कंपनी का नाम",
+    "industryType": "उद्योग का प्रकार", "profileComplete": "प्रोफ़ाइल पूर्ण",
+    "personalInfo": "व्यक्तिगत जानकारी", "businessInfo": "व्यावसायिक जानकारी",
+    "signOut": "साइन आउट", "myRequests": "मेरे संग्रह अनुरोध"
+  },
+  "farmer": {
+    "welcome": "वापस स्वागत है, किसान!", "myFields": "मेरे खेत",
+    "fieldActivity": "खेत गतिविधि", "farmTerritory": "खेत क्षेत्र",
+    "requestPickup": "संग्रह अनुरोध करें", "newRequest": "नया संग्रह अनुरोध",
+    "myRequests": "मेरे अनुरोध", "carbonCredits": "कार्बन क्रेडिट",
+    "viewCarbonPlan": "कार्बन योजना देखें",
+    "cropType": "फसल का प्रकार", "biomass": "बायोमास मात्रा (टन)",
+    "priceExpectation": "अपेक्षित मूल्य (₹/टन)", "qualityNotes": "गुणवत्ता नोट",
+    "cropPhoto": "फसल की फ़ोटो", "pickupDate": "पसंदीदा संग्रह तिथि",
+    "getLocation": "मेरा GPS स्थान पाएं", "gettingLocation": "स्थान मिल रहा है...",
+    "locationSet": "स्थान सेट हो गया!", "locationError": "स्थान नहीं मिला",
+    "manualLocation": "या पता स्वयं टाइप करें",
+    "drawLand": "नक्शे पर जमीन चिह्नित करें", "saveLand": "जमीन सीमा सहेजें",
+    "pending": "लंबित", "accepted": "स्वीकृत", "collected": "संग्रहित",
+    "cancelled": "रद्द", "noRequests": "अभी तक कोई संग्रह अनुरोध नहीं",
+    "submitRequest": "संग्रह अनुरोध जमा करें", "requestSuccess": "अनुरोध सफलतापूर्वक जमा किया!"
+  },
+  "carbon": {
+    "title": "कार्बन क्रेडिट योजना", "yourCredits": "आपके क्रेडिट",
+    "co2Saved": "बचाई गई CO₂", "treesEquivalent": "पेड़ों के बराबर",
+    "howItWorks": "यह कैसे काम करता है", "formula": "1 टन पराली = 1.8 क्रेडिट",
+    "earn": "क्रेडिट अर्जित करें", "history": "लेन-देन इतिहास",
+    "impact": "आपका पर्यावरणीय प्रभाव", "perTon": "प्रति टन संग्रह",
+    "co2PerCredit": "प्रति क्रेडिट 900 किग्रा CO₂", "noHistory": "अभी तक कोई लेन-देन नहीं",
+    "explanation": "जब आपकी फसल की पराली जलाने के बजाय एकत्र की जाती है, तो आप प्रत्येक टन के लिए कार्बन क्रेडिट अर्जित करते हैं।",
+    "calculation": "गणना",
+    "biomassCollected": "एकत्रित बायोमास",
+    "creditsEarned": "अर्जित क्रेडिट",
+    "co2Prevented": "रोकी गई CO₂",
+    "futureSell": "भविष्य: क्रेडिट बेचें",
+    "futureSellDesc": "जल्द ही आप सत्यापित बाज़ारों में अपने कार्बन क्रेडिट बेच पाएंगे।"
+  },
+  "aggregator": {
+    "title": "संग्रहकर्ता डैशबोर्ड", "farmerRequests": "किसान संग्रह अनुरोध",
+    "industryDemands": "उद्योग की मांगें", "routeMap": "मार्ग और नक्शा",
+    "routeOptimization": "मार्ग अनुकूलन", "generateRoute": "सर्वश्रेष्ठ मार्ग बनाएं",
+    "resetRoute": "मार्ग रीसेट करें", "animating": "मार्ग एनिमेट हो रहा है...",
+    "truckCapacity": "ट्रक क्षमता", "selectedFarms": "चुने गए खेत",
+    "totalBiomass": "कुल बायोमास", "distance": "दूरी",
+    "estimatedTime": "अनुमानित समय", "fuelCost": "ईंधन लागत",
+    "available": "उपलब्ध", "scheduled": "निर्धारित", "collected": "एकत्रित",
+    "acceptRequest": "अनुरोध स्वीकार करें", "markCollected": "एकत्रित चिह्नित करें",
+    "schedulePickup": "संग्रह निर्धारित करें", "pickupDate": "संग्रह तिथि",
+    "openInMaps": "Google Maps में खोलें", "noRequests": "अभी तक कोई किसान अनुरोध नहीं",
+    "noDemands": "अभी तक कोई उद्योग मांग नहीं", "myLocation": "मेरा स्थान",
+    "myLocationDesc": "अपना GPS स्थान पहचानने के लिए क्लिक करें",
+    "demandAccepted": "मांग स्वीकृत!", "requestAccepted": "अनुरोध स्वीकृत!"
+  },
+  "industry": {
+    "title": "उद्योग डैशबोर्ड", "postDemand": "मांग पोस्ट करें",
+    "myDemands": "मेरी मांगें", "supplyMarketplace": "आपूर्ति बाज़ार",
+    "companyName": "कंपनी का नाम", "industryType": "उद्योग का प्रकार",
+    "quantityNeeded": "आवश्यक मात्रा (टन)", "priceOffered": "प्रस्तावित मूल्य (₹/टन)",
+    "deadline": "अंतिम तिथि", "description": "विवरण",
+    "locationAddress": "डिलीवरी स्थान", "demandStatus": "स्थिति",
+    "open": "खुली", "accepted": "स्वीकृत", "fulfilled": "पूर्ण", "closed": "बंद",
+    "createDemand": "नई मांग बनाएं", "editDemand": "मांग संपादित करें",
+    "closeDemand": "मांग बंद करें", "noDemands": "अभी तक कोई मांग नहीं",
+    "demandPosted": "मांग सफलतापूर्वक पोस्ट की!", "demandClosed": "मांग बंद हो गई।",
+    "supplyAnalytics": "आपूर्ति विश्लेषण", "biomassAvailable": "उपलब्ध बायोमास",
+    "cropBreakdown": "फसल का विवरण"
+  },
+  "status": {
+    "pending": "लंबित", "accepted": "स्वीकृत", "collected": "एकत्रित",
+    "cancelled": "रद्द", "open": "खुली", "fulfilled": "पूर्ण", "closed": "बंद",
+    "available": "उपलब्ध", "scheduled": "निर्धारित"
+  },
+  "crops": {
+    "Wheat": "गेहूं", "Paddy": "धान", "Maize": "मक्का",
+    "Sugarcane": "गन्ना", "Cotton": "कपास", "Other": "अन्य", "Any": "कोई भी"
+  },
+  "map": {
+    "satellite": "उपग्रह दृश्य", "standard": "मानक दृश्य",
+    "liveTracking": "लाइव ट्रैकिंग सक्रिय", "clickForMaps": "Google Maps में खोलने के लिए मार्कर क्लिक करें",
+    "legend": "लीजेंड", "optimisedRoute": "अनुकूलित मार्ग",
+    "yourBase": "आपका स्थान", "farmerLocation": "किसान का स्थान",
+    "industryLocation": "उद्योग का स्थान"
+  }
+}

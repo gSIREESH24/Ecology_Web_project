@@ -1,0 +1,267 @@
+
+.agri-root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  font-family: 'Segoe UI', 'Noto Sans', sans-serif;
+  padding: 24px 16px;
+}
+
+.agri-bg {
+  position: fixed;
+  inset: 0;
+  background-image: url('/assets/FarmLand.jpg');
+  background-size: cover;
+  background-position: center;
+  z-index: 0;
+}
+
+.agri-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(240, 245, 235, 0.72);
+}
+
+.lang-bar {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.lang-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  color: #444;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.lang-btn.active {
+  background: #2d6a4f;
+  color: #fff;
+}
+
+.lang-btn:not(.active):hover {
+  background: rgba(45, 106, 79, 0.1);
+}
+
+.lang-flag {
+  font-size: 16px;
+}
+
+.agri-card {
+  position: relative;
+  z-index: 10;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 40px 44px 36px;
+  width: 100%;
+  max-width: 560px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.10);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.agri-logo {
+  width: 52px;
+  height: 52px;
+  background: #2d6a4f;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.agri-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 6px;
+  text-align: center;
+}
+
+.agri-sub {
+  font-size: 14px;
+  color: #666;
+  margin: 0 0 28px;
+  text-align: center;
+}
+
+.agri-form {
+  width: 100%;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 20px;
+  width: 100%;
+}
+
+.form-grid.single {
+  grid-template-columns: 1fr;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group.full {
+  grid-column: 1 / -1;
+}
+
+.form-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #2c2c2c;
+}
+
+.form-group input {
+  padding: 11px 14px;
+  border: 1.5px solid #e2e8e0;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #333;
+  background: #fafafa;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group input::placeholder {
+  color: #b0b8b4;
+}
+
+.form-group input:focus {
+  border-color: #2d6a4f;
+  box-shadow: 0 0 0 3px rgba(45, 106, 79, 0.10);
+  background: #fff;
+}
+
+.field-err {
+  font-size: 11px;
+  color: #c0392b;
+}
+
+.role-section {
+  width: 100%;
+  margin-top: 22px;
+}
+
+.role-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #2c2c2c;
+  margin-bottom: 10px;
+}
+
+.role-selector {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.role-btn {
+  padding: 12px;
+  border-radius: 12px;
+  border: 1.5px solid #e2e8e0;
+  background: #bcc5bc;
+  color: #333;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.role-btn:hover {
+  background: #417052;
+}
+
+.role-btn.active {
+  background: #2d6a4f;
+  color: white;
+  border-color: #2d6a4f;
+}
+
+.cta-btn {
+  margin-top: 24px;
+  width: 100%;
+  padding: 15px;
+  background: #2d6a4f;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cta-btn:hover {
+  background: #245a42;
+}
+
+.cta-btn:active {
+  transform: scale(0.99);
+}
+
+.server-error {
+  background: #fdecea;
+  color: #c0392b;
+  padding: 10px;
+  border-radius: 8px;
+  margin-top: 10px;
+  font-size: 13px;
+}
+
+.switch-text {
+  margin-top: 18px;
+  font-size: 14px;
+  color: #666;
+  text-align: center;
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  color: #2d6a4f;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.link-btn:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 560px) {
+  .agri-card {
+    padding: 28px 20px 24px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .role-selector {
+    grid-template-columns: 1fr;
+  }
+
+  .agri-title {
+    font-size: 22px;
+  }
+}
